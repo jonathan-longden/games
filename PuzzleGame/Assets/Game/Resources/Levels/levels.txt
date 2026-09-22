@@ -1,0 +1,456 @@
+// ECHO ASCENT - level definitions
+// Format and legend: see Assets/Game/Scripts/Core/LevelParser.cs
+//   #  wall   .  floor   (space) void
+//   P  player   G  exit   B  block   E  echo block   R  echo rune
+//   x y z  switches (channels 0,1,2)   X Y Z  doors (channels 0,1,2)
+//   c  crystal (star 3)   k key   g gem   p puzzle piece   r relic
+
+// ======================================================= THE SUNKEN STEPS
+
+level 1
+title: First Steps
+region: The Sunken Steps
+hint: Swipe or use the arrows. Find the glowing exit.
+difficulty: 1
+target: 9
+mastery: crystal
+map: 1 0
+board:
+#######
+#c..#G#
+###.#.#
+  #.#.#
+  #...#
+  #.###
+  #P#
+  ###
+end
+
+level 2
+title: Two Roads
+region: The Sunken Steps
+hint: Every path counts. Fewer moves earn more stars.
+difficulty: 1
+target: 10
+mastery: crystal
+requires: 1
+map: 2 0.45
+board:
+#########
+#...c...#
+#.#####.#
+#.#...#.#
+#P#.#.#G#
+#.......#
+#########
+end
+
+level 3
+title: The Long Way Round
+region: The Sunken Steps
+hint: Look before you walk.
+difficulty: 1
+target: 11
+mastery: crystal
+requires: 2
+map: 3 0.8
+board:
+#########
+#P....#c#
+#.###...#
+#.#...#.#
+#...#.#.#
+###.#...#
+#G..#.###
+#########
+end
+
+// ======================================================= HALL OF STONES
+
+level 4
+title: Nudge
+region: Hall of Stones
+hint: Walk into a block to push it.
+difficulty: 1
+target: 7
+mastery: crystal
+requires: 3
+map: 4 0.35
+board:
+  ###
+  #G#
+  #.#
+###.###
+#P.B..#
+###.###
+  #.#
+  #c#
+  ###
+end
+
+level 5
+title: Doorway
+region: Hall of Stones
+hint: Blocks can be pushed, never pulled.
+difficulty: 2
+target: 8
+mastery: crystal
+requires: 4
+map: 5 -0.25
+board:
+#######
+#..G..#
+#.###.#
+#.#c#.#
+#.#.#.#
+#P.B..#
+#######
+end
+
+level 6
+title: Squatter
+region: Hall of Stones
+hint: Stuck? Undo is free. Use it as often as you like.
+difficulty: 2
+target: 8
+mastery: crystal
+requires: 5
+map: 6 -0.75
+board:
+#######
+#..#..#
+#P.B.G#
+#..#.c#
+#######
+end
+
+level 7
+title: Two Stones
+region: Hall of Stones
+hint: You can only push one block at a time.
+difficulty: 2
+target: 10
+mastery: crystal
+requires: 6
+map: 7 -0.45
+board:
+########
+#P.#..c#
+#.BB..G#
+#..#...#
+########
+end
+
+level 8
+title: Crossroads
+region: Hall of Stones
+difficulty: 2
+target: 8
+mastery: crystal
+requires: 7
+map: 8 0.1
+board:
+  #####
+  #.G.#
+  ##.##
+###.B.###
+#P..B...#
+###...###
+  ##.##
+  #.c.#
+  #####
+end
+
+level 9
+title: Stone Garden
+region: Hall of Stones
+difficulty: 3
+target: 12
+mastery: par 10
+requires: 8
+map: 9 0.6
+board:
+########
+#P.....#
+#.B.B..#
+#..B.###
+###..#G#
+  #....#
+  ######
+end
+
+// ======================================================= THE ECHO VAULTS
+
+level 10
+title: Pressure Plate
+region: The Echo Vaults
+hint: A block resting on a plate opens its door.
+difficulty: 2
+target: 15
+mastery: crystal
+requires: 9
+map: 10 0.85
+board:
+#######
+#P.B.x#
+#.###.#
+#..X.G#
+#.#####
+#c#
+###
+end
+
+level 11
+title: Hold the Door
+region: The Echo Vaults
+hint: Doors close again when the plate is released.
+kind: Normal
+difficulty: 3
+target: 27
+mastery: crystal
+requires: 10
+map: 11 0.35
+board:
+#########
+#P......#
+#.#####.#
+#.B.x...#
+###.#X###
+  #c#.#k#
+  ###...#
+    #G###
+    ###
+end
+
+level 12
+title: The Echo
+region: The Echo Vaults
+hint: The violet block remembers your last moves. Step on the rune and it repeats them.
+difficulty: 3
+target: 15
+mastery: par 12
+echo: 3
+requires: 11
+map: 12 -0.2
+board:
+###########
+#...#.....#
+#.E.#..R..#
+#..x#.....#
+#####..P..#
+    ###X###
+      #G#
+      ###
+end
+
+level B1
+title: Gem Grotto
+region: The Echo Vaults
+kind: Bonus
+hint: The echo can hold a door open while you explore.
+difficulty: 3
+target: 17
+mastery: par 14
+requires: 12
+links: 14
+map: 13 0.75
+echo: 4
+board:
+###########
+#y...E...x#
+###########
+#g.Y...X.G#
+###..R..###
+###..P..###
+###########
+end
+
+level 13
+title: Two Seals
+region: The Echo Vaults
+hint: Every plate of a colour must be pressed to open its doors.
+difficulty: 3
+target: 15
+mastery: crystal
+requires: 12
+map: 13 -0.7
+board:
+ #######
+ #.x..c#
+ #.B.B.#
+ #P..y.#
+ ###X###
+   #.#
+   #Y#
+   #G#
+   ###
+end
+
+level 14
+title: Echo and Stone
+region: The Echo Vaults
+hint: An echo can push a block, too.
+difficulty: 3
+target: 11
+mastery: par 9
+echo: 4
+requires: 13
+map: 14 -0.2
+board:
+#########
+#.E..B.x#
+#.....###
+#########
+#..R.X.G#
+#P...####
+#########
+end
+
+level 15
+title: Twin Plates
+region: The Echo Vaults
+hint: Two plates, one door.
+difficulty: 3
+target: 19
+mastery: crystal
+requires: 14
+map: 15 0.4
+board:
+#########
+#......c#
+#.B.x.B.#
+#P..#..x#
+###.#.###
+  #.X.#
+  ##G##
+end
+
+level S1
+title: The Sealed Stair
+region: The Echo Vaults
+kind: Secret
+hint: The key turns. A hidden stair opens.
+difficulty: 4
+target: 19
+mastery: crystal
+requires: 14
+requires-item: Key
+map: 15 -0.85
+board:
+#########
+#c..#...#
+#.B.#.B.#
+#.x.X.y.#
+##.###.##
+#P..Y..G#
+#########
+end
+
+// ======================================================= THE STARLIT SPIRE
+
+level 16
+title: Switchback
+region: The Starlit Spire
+kind: Hard
+difficulty: 4
+target: 43
+mastery: par 37
+requires: 15
+map: 16 0.8
+hint: Plan the order before you push.
+board:
+#########
+#P..#...#
+#.B...B.#
+#..##.#.#
+#..x..x.#
+ #..###X#
+ #####.G#
+     ####
+end
+
+level 17
+title: Measured Steps
+region: The Starlit Spire
+difficulty: 4
+target: 22
+mastery: par 19
+echo: 3
+requires: 16
+map: 17 0.3
+hint: Push too far and there is no pulling back. Step on and off the rune to nudge.
+board:
+###########
+#.E...B.x.#
+###########
+#P....#
+#####.#
+ #GXR.#
+ ###.p#
+   ####
+end
+
+level 18
+title: Gallery
+region: The Starlit Spire
+difficulty: 4
+target: 55
+mastery: par 49
+requires: 17
+map: 18 -0.3
+board:
+#########
+#P..#...#
+#.B.B.B.#
+#..##.#.#
+#x.x..x.#
+####X####
+   #..#
+   #G##
+   ###
+end
+
+level 19
+title: The Loop
+region: The Starlit Spire
+kind: Hard
+difficulty: 5
+target: 34
+mastery: par 29
+echo: 3
+requires: 18
+map: 19 -0.75
+hint: A door only has to stay open while something passes through it.
+board:
+###########
+#E.Y.B..x.#
+###########
+#..B..y.###
+#.#####RXG#
+#P......###
+###########
+end
+
+level 20
+title: Heart of the Spire
+region: The Starlit Spire
+kind: Boss
+hint: Everything you have learned.
+difficulty: 5
+target: 36
+mastery: par 31
+echo: 3
+requires: 19
+map: 20 0
+board:
+###########
+#E.B...x..#
+###########
+#P..#.....#
+#.B.X.#B#.#
+#..R#..z..#
+#.z.#.B..r#
+###Z#######
+  #G#
+  ###
+end
