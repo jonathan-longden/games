@@ -34,7 +34,20 @@ namespace PuzzleGame
         Direction _heldPad;
         float _padTimer;
 
-        float SwipeThreshold => Mathf.Max(24f, Mathf.Min(Screen.width, Screen.height) * 0.045f);
+        float _lastSwipeTime;
+
+        /// <summary>
+        /// About 3.5 mm of finger travel: short enough to feel instant, long enough
+        /// that a tap or a resting thumb never moves the player.
+        /// </summary>
+        static float SwipeThreshold
+        {
+            get
+            {
+                float px = Screen.dpi > 0f ? Screen.dpi * 0.14f : Mathf.Min(Screen.width, Screen.height) * 0.045f;
+                return Mathf.Clamp(px, 20f, 110f);
+            }
+        }
 
         void Update()
         {
@@ -143,15 +156,21 @@ namespace PuzzleGame
         void Track(Vector2 pos)
         {
             var delta = pos - _origin;
-            // After the first move of a drag, require a bit more travel for the next one
-            // so a single swipe never produces accidental double moves.
-            float threshold = _swipedThisTouch ? SwipeThreshold * 1.6f : SwipeThreshold;
+            // The first move of a touch fires as soon as the finger passes the threshold.
+            // Continuing the same drag can chain further moves, but only after more travel
+            // and a short pause, so one flick never becomes an accidental double move.
+            float threshold = _swipedThisTouch ? SwipeThreshold * 1.8f : SwipeThreshold;
             if (delta.magnitude < threshold) return;
+            if (_swipedThisTouch && Time.unscaledTime - _lastSwipeTime < 0.12f) return;
+            float ax = Mathf.Abs(delta.x), ay = Mathf.Abs(delta.y);
+            // Diagonal-ish drags wait for a clearer direction (unless they are long).
+            if (Mathf.Max(ax, ay) < Mathf.Min(ax, ay) * 1.3f && delta.magnitude < threshold * 2f) return;
             Direction d;
-            if (Mathf.Abs(delta.x) > Mathf.Abs(delta.y)) d = delta.x > 0 ? Direction.Right : Direction.Left;
+            if (ax > ay) d = delta.x > 0 ? Direction.Right : Direction.Left;
             else d = delta.y > 0 ? Direction.Up : Direction.Down;
             Puzzle.Move(d);
             _swipedThisTouch = true;
+            _lastSwipeTime = Time.unscaledTime;
             _origin = pos;
         }
 

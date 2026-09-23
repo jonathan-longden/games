@@ -14,7 +14,7 @@ namespace PuzzleGame
     public sealed class GridManager : MonoBehaviour
     {
         public const float MoveDuration = 0.1f;
-        public const float EchoStepDuration = 0.13f;
+        public const float EchoStepDuration = 0.11f;
 
         public Camera Cam;
         public Fx Fx;
@@ -112,8 +112,11 @@ namespace PuzzleGame
             _player = Create<PlayerAvatar>("Player", state.Player);
             _player.Build();
 
+            EchoArmed = false;
+            ApplyKindTheme();
             Snap(state, false);
             FitCamera();
+            Reveal();
         }
 
         T Create<T>(string name, GridPos cell) where T : BoardPiece
@@ -188,6 +191,8 @@ namespace PuzzleGame
             _ghostEnds.Clear();
             _player = null;
             _goal = null;
+            _kindFrame = null;
+            EchoArmed = false;
             Fx?.Clear();
         }
 
@@ -226,8 +231,15 @@ namespace PuzzleGame
             {
                 if (o.Bumped)
                 {
+                    // A blocked move must still visibly answer the swipe.
                     _player.Bump(o.Dir);
                     Audio?.Play(Sfx.Bump, o.BlockedPush ? 0.8f : 0.5f);
+                    if (o.BlockedPush)
+                    {
+                        var target = before.Player.Step(o.Dir);
+                        foreach (var b in _blocks) if (b.Cell == target) b.Jiggle(o.Dir);
+                        foreach (var e in _echoes) if (e.Cell == target) e.Jiggle(o.Dir);
+                    }
                 }
                 return;
             }
@@ -254,6 +266,8 @@ namespace PuzzleGame
                     {
                         Audio?.Play(Sfx.Move, 0.6f);
                     }
+                    // Tiny puff where the step started: every accepted input is visibly acknowledged.
+                    Fx?.Step(CellToWorld(o.PlayerFrom), DirVec(o.Dir));
                 },
                 End = () =>
                 {
@@ -370,7 +384,14 @@ namespace PuzzleGame
                 {
                     if (pressed) anyOn = true; else anyOff = true;
                     _switches[i].SetPressed(pressed, animate);
-                    if (animate && pressed) Fx?.Ring(_switches[i].transform.position, Theme.Channel(_level.Switches[i].Channel), 1.4f, 0.4f);
+                    if (animate)
+                    {
+                        int ch = _level.Switches[i].Channel;
+                        if (pressed) Fx?.Ring(_switches[i].transform.position, Theme.Channel(ch), 1.4f, 0.4f);
+                        // Show which doors this plate belongs to, even when more plates are still needed.
+                        for (int d = 0; d < _doors.Count; d++)
+                            if (_level.Doors[d].Channel == ch) _doors[d].Nudge();
+                    }
                 }
             }
             for (int i = 0; i < _doors.Count; i++)
@@ -404,16 +425,23 @@ namespace PuzzleGame
             for (int i = 0; i < _pickups.Count; i++) _pickups[i].SetTaken(_shown.PickupTaken[i]);
         }
 
+        /// <summary>True when the player is one step from a rune (the trail is then exact).</summary>
+        public bool EchoArmed { get; private set; }
+        public event Action<bool> EchoArmedChanged;
+
         /// <summary>
-        /// Faint trail showing exactly where each echo block would travel if a rune
-        /// were stepped on now. The echo is powerful; it should never be a surprise.
+        /// Trail showing where each echo block would travel. Faint while the player
+        /// is away from the rune; bright ("armed") when the next step onto the rune
+        /// will play exactly this. The echo is powerful; it should never be a surprise.
         /// </summary>
         void RefreshGhost()
         {
             if (_engine == null || _echoes.Count == 0) return;
-            var paths = _engine.PreviewEcho(_shown);
+            var preview = _engine.PreviewEcho(_shown);
+            bool armed = preview.Armed;
+            float alpha = armed ? 0.85f : 0.3f;
             int dot = 0, end = 0;
-            foreach (var path in paths)
+            foreach (var path in preview.Paths)
             {
                 for (int i = 1; i < path.Count; i++)
                 {
@@ -423,17 +451,95 @@ namespace PuzzleGame
                     {
                         var r = GhostDot(dot++);
                         r.transform.localPosition = Vector3.Lerp(a, b, k / 3f);
-                        r.transform.localScale = Vector3.one * (k == 3 ? 0.16f : 0.1f);
+                        r.transform.localScale = Vector3.one * (k == 3 ? 0.16f : 0.1f) * (armed ? 1.15f : 1f);
+                        r.color = Theme.Violet.WithAlpha(alpha);
                     }
                 }
                 if (path.Count > 1 && path[path.Count - 1] != path[0])
                 {
                     var r = GhostEnd(end++);
                     r.transform.localPosition = CellToWorld(path[path.Count - 1]);
+                    r.color = Theme.Violet.WithAlpha(armed ? 0.9f : 0.3f);
                 }
             }
             for (int i = dot; i < _ghostDots.Count; i++) _ghostDots[i].enabled = false;
             for (int i = end; i < _ghostEnds.Count; i++) _ghostEnds[i].enabled = false;
+            foreach (var r in _runes) r.SetArmed(armed);
+            if (armed != EchoArmed)
+            {
+                EchoArmed = armed;
+                EchoArmedChanged?.Invoke(armed);
+            }
+        }
+
+        // ------------------------------------------------------------ teaching and feedback
+
+        /// <summary>Gently rings cells for a moment: used when a mechanic appears for the first time.</summary>
+        public void Spotlight(IList<GridPos> cells, Color color, float delay = 0.35f)
+        {
+            if (cells == null || _root == null) return;
+            var root = _root;
+            for (int pulse = 0; pulse < 3; pulse++)
+            {
+                float d = delay + pulse * 0.7f;
+                foreach (var c in cells)
+                {
+                    var pos = CellToWorld(c);
+                    Tween.Delay(root, d, () => { if (root != null) Fx?.Ring(pos, color, 1.7f, 0.65f); });
+                }
+            }
+        }
+
+        /// <summary>Soft feedback when undo is pressed with nothing to undo.</summary>
+        public void NothingToUndo()
+        {
+            Audio?.Play(Sfx.Bump, 0.35f);
+        }
+
+        public void ResetFlash()
+        {
+            if (_player == null) return;
+            Fx?.Ring(_player.transform.position, Theme.Cyan, 1.6f, 0.4f);
+        }
+
+        void ApplyKindTheme()
+        {
+            // Boss and hard levels get their own frame colour so they read as special at a glance.
+            Color? rim = null;
+            if (_level.Kind == LevelKind.Boss) rim = Theme.Crimson;
+            else if (_level.Kind == LevelKind.Hard) rim = Theme.Pink;
+            else if (_level.Kind == LevelKind.Secret) rim = Theme.Violet;
+            else if (_level.Kind == LevelKind.Bonus) rim = Theme.Gold;
+            if (!rim.HasValue) return;
+
+            var halo = new GameObject("KindHalo");
+            halo.transform.SetParent(_root, false);
+            var r = halo.AddComponent<SpriteRenderer>();
+            r.sprite = SpriteFactory.Glow;
+            r.color = rim.Value.WithAlpha(_level.Kind == LevelKind.Boss ? 0.28f : 0.16f);
+            r.sortingOrder = Layers.Shadow - 2;
+            halo.transform.localScale = new Vector3(_level.Width + 4f, _level.Height + 4f, 1f);
+
+            var frame = new GameObject("KindFrame");
+            frame.transform.SetParent(_root, false);
+            var f = frame.AddComponent<SpriteRenderer>();
+            f.sprite = SpriteFactory.TileOutline;
+            f.color = rim.Value.WithAlpha(0.55f);
+            f.sortingOrder = Layers.Shadow - 1;
+            frame.transform.localScale = new Vector3(_level.Width + 0.7f, _level.Height + 0.7f, 1f);
+            _kindFrame = f;
+            _kindColor = rim.Value;
+        }
+
+        SpriteRenderer _kindFrame;
+        Color _kindColor;
+        float _emberTimer;
+
+        void Reveal()
+        {
+            var root = _root;
+            root.localScale = Vector3.one * 0.94f;
+            Tween.Run(root, 0.22f, t => { if (root != null) root.localScale = Vector3.one * Mathf.LerpUnclamped(0.94f, 1f, t); }, Ease.OutBack);
         }
 
         SpriteRenderer GhostDot(int i)
@@ -517,6 +623,23 @@ namespace PuzzleGame
         {
             Advance(Time.unscaledDeltaTime);
             if (Screen.width != _lastW || Screen.height != _lastH) FitCamera();
+
+            if (_kindFrame != null)
+            {
+                float t = Time.unscaledTime;
+                _kindFrame.color = _kindColor.WithAlpha(0.4f + 0.2f * Mathf.Sin(t * 1.6f));
+                if (_level.Kind == LevelKind.Boss && Fx != null)
+                {
+                    // Slow embers rising from the board edge: the boss arena feels different.
+                    _emberTimer -= Time.unscaledDeltaTime;
+                    if (_emberTimer <= 0f)
+                    {
+                        _emberTimer = 0.22f;
+                        float x = UnityEngine.Random.Range(-0.5f, 0.5f) * (_level.Width + 1f);
+                        Fx.Sparkle(_root.position + new Vector3(x, -(_level.Height * 0.5f + 0.2f)), Theme.Crimson, 0.2f);
+                    }
+                }
+            }
         }
 
         // ------------------------------------------------------------ effects

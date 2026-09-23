@@ -6,101 +6,78 @@ using UnityEngine;
 namespace PuzzleGame
 {
     /// <summary>
-    /// Runs one puzzle: owns the engine and state, applies inputs, keeps the undo
-    /// history and tells the board what to animate. Logic is applied instantly;
-    /// animation catches up (and is fast-forwarded by the next input).
+    /// Runs one puzzle for the game: wraps a Core <see cref="PuzzleSession"/>
+    /// (rules, undo, reset) and tells the board what to animate.
+    ///
+    /// Input is never delayed: every move is applied to the puzzle state the
+    /// instant it arrives, and whatever is still animating (including an echo
+    /// replay) is fast-forwarded to its end first.
     /// </summary>
     public sealed class PuzzleManager : MonoBehaviour
     {
         public GridManager Grid;
         public AudioManager Audio;
 
-        public LevelData Level { get; private set; }
-        public PuzzleEngine Engine { get; private set; }
-        public PuzzleState State { get; private set; }
+        PuzzleSession _session;
+
+        public LevelData Level => _session?.Level;
+        public PuzzleEngine Engine => _session?.Engine;
+        public PuzzleState State => _session?.State;
         public bool Active { get; private set; }
-        public bool UsedUndo { get; private set; }
-        public int UndoCount => _history.Count;
+        public bool UsedUndo => _session != null && _session.UsedUndo;
+        public int UndoCount => _session?.UndoCount ?? 0;
+        public bool CanUndo => AcceptsInput && _session.CanUndo;
+        public bool CanReset => AcceptsInput && _session.CanReset;
 
         /// <summary>Raised after anything that changes what the HUD shows.</summary>
         public event Action StateChanged;
         /// <summary>Raised once when the exit is reached (after the win animation).</summary>
         public event Action<RunStats> Completed;
 
-        readonly MoveHistory _history = new MoveHistory(1000);
         readonly MoveOutcome _outcome = new MoveOutcome();
-        readonly Queue<Direction> _buffer = new Queue<Direction>();
         bool _winPending;
         bool _inputLocked;
 
         public void Begin(LevelData level)
         {
-            Level = level;
-            Engine = new PuzzleEngine(level);
-            State = Engine.CreateInitialState();
-            _history.Clear();
-            _buffer.Clear();
-            UsedUndo = false;
+            _session = new PuzzleSession(level);
             _winPending = false;
             _inputLocked = false;
             Active = true;
-            Grid.Build(Engine, State);
+            Grid.Build(_session.Engine, _session.State);
             StateChanged?.Invoke();
         }
 
         public void End()
         {
             Active = false;
-            _buffer.Clear();
             Grid.Clear();
         }
 
         /// <summary>Pauses/resumes input without tearing the level down.</summary>
-        public void SetInputLocked(bool locked)
-        {
-            _inputLocked = locked;
-            if (locked) _buffer.Clear();
-        }
+        public void SetInputLocked(bool locked) => _inputLocked = locked;
 
-        public bool AcceptsInput => Active && !_inputLocked && !_winPending && State != null && !State.Won;
+        public bool AcceptsInput => Active && !_inputLocked && !_winPending && _session != null && !_session.State.Won;
 
         /// <summary>Entry point for every control scheme (keys, swipes, on-screen pad).</summary>
         public void Move(Direction dir)
         {
             if (!AcceptsInput || dir == Direction.None) return;
-            // While an echo replay is playing, hold one input so the replay can be read;
-            // everything else is applied immediately.
-            if (Grid.IsReplayingEcho)
-            {
-                if (_buffer.Count < 2) _buffer.Enqueue(dir);
-                return;
-            }
-            Apply(dir);
-        }
-
-        void Apply(Direction dir)
-        {
-            var before = State.Clone();
-            bool moved = Engine.Apply(State, dir, _outcome);
-            if (moved) _history.Record(before);
-            Grid.ShowMove(before, _outcome, State);
+            bool moved = _session.Move(dir, _outcome, out var before);
+            Grid.ShowMove(before, _outcome, _session.State);
             if (moved) StateChanged?.Invoke();
-            if (State.Won) _winPending = true;
+            if (_session.State.Won) _winPending = true;
         }
 
         public void Undo()
         {
-            if (!Active || _winPending || _inputLocked || State == null) return;
-            var prev = _history.Undo();
-            if (prev == null)
+            if (!AcceptsInput) return;
+            if (!_session.Undo())
             {
-                Audio?.Play(Sfx.Bump, 0.4f);
+                Grid.NothingToUndo();
                 return;
             }
-            _buffer.Clear();
-            State = prev;
-            UsedUndo = true;
-            Grid.Snap(State, true);
+            Grid.Snap(_session.State, true);
             Audio?.Play(Sfx.Undo, 0.7f);
             StateChanged?.Invoke();
         }
@@ -108,38 +85,33 @@ namespace PuzzleGame
         /// <summary>Back to the start. Undoable, so an accidental reset never loses a solution.</summary>
         public void ResetPuzzle()
         {
-            if (!Active || _winPending || _inputLocked || State == null) return;
-            if (State.Moves == 0 && _history.Count == 0) return;
-            _buffer.Clear();
-            _history.Record(State);
-            State = Engine.CreateInitialState();
-            Grid.Snap(State, true);
+            if (!AcceptsInput || !_session.Reset()) return;
+            Grid.Snap(_session.State, true);
+            Grid.ResetFlash();
             Audio?.Play(Sfx.Reset, 0.7f);
             StateChanged?.Invoke();
         }
 
-        public bool PickupTaken(int index) => State != null && index >= 0 && index < State.PickupTaken.Length && State.PickupTaken[index];
+        public bool PickupTaken(int index)
+        {
+            var s = State;
+            return s != null && index >= 0 && index < s.PickupTaken.Length && s.PickupTaken[index];
+        }
 
         void Update()
         {
-            if (!Active) return;
-
-            if (_buffer.Count > 0 && !Grid.IsReplayingEcho && AcceptsInput)
-                Apply(_buffer.Dequeue());
-
-            if (_winPending && !Grid.IsAnimating)
+            if (!Active || !_winPending || Grid.IsAnimating) return;
+            _winPending = false;
+            _inputLocked = true;
+            var s = _session.State;
+            var run = new RunStats
             {
-                _winPending = false;
-                _inputLocked = true;
-                var run = new RunStats
-                {
-                    Moves = State.Moves,
-                    UsedUndo = UsedUndo,
-                    CrystalCollected = PickupTaken(Level.CrystalIndex),
-                    ItemCollected = PickupTaken(Level.SpecialItemIndex),
-                };
-                Grid.PlayWin(() => Completed?.Invoke(run));
-            }
+                Moves = s.Moves,
+                UsedUndo = _session.UsedUndo,
+                CrystalCollected = PickupTaken(Level.CrystalIndex),
+                ItemCollected = PickupTaken(Level.SpecialItemIndex),
+            };
+            Grid.PlayWin(() => Completed?.Invoke(run));
         }
 
 #if UNITY_EDITOR

@@ -270,6 +270,10 @@ namespace PuzzleGame
 
             if (l.Kind == LevelKind.Boss)
             {
+                // The summit: a permanent crimson aura so the boss reads as the goal of the climb.
+                var aura = UIFactory.Image(n.Root, "Aura", SpriteFactory.Glow, Theme.Crimson.WithAlpha(0.35f));
+                aura.rectTransform.Fill(-size * 1.1f, -size * 1.1f, -size * 1.1f, -size * 1.1f);
+                aura.transform.SetAsFirstSibling();
                 var crown = UIFactory.Image(n.Root, "Crown", SpriteFactory.Star, Theme.Crimson);
                 crown.rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 0), new Vector2(0, 6), new Vector2(64, 64));
             }
@@ -359,10 +363,26 @@ namespace PuzzleGame
             }
         }
 
+        /// <summary>
+        /// A secret level is invisible until the player reaches the level it branches
+        /// from. After that it shows as a faint sealed "?": noticeable if you look,
+        /// never signposted.
+        /// </summary>
+        bool Concealed(LevelData l)
+        {
+            if (l.Kind != LevelKind.Secret) return false;
+            if (Game.Progress.IsUnlocked(l)) return false;
+            var req = Game.Levels.Get(l.Requires);
+            return req == null || !Game.Progress.IsCompleted(req);
+        }
+
         void ApplyNode(Node n, bool unlocked)
         {
             var l = n.Level;
             var p = Game.Progress;
+            bool concealed = Concealed(l) && !_animating.Contains(l.Id);
+            n.Root.gameObject.SetActive(!concealed);
+            if (concealed) return;
             bool completed = p.IsCompleted(l);
             int stars = p.StarsFor(l);
             bool secretHidden = l.Kind == LevelKind.Secret && !unlocked;
@@ -417,8 +437,11 @@ namespace PuzzleGame
                 bool fromUnlocked = from != null && p.IsUnlocked(from) && !_animating.Contains(from.Id);
                 toUnlocked = fromUnlocked && toUnlocked;
             }
+            bool hidden = to != null && Concealed(to);
+            foreach (var d in s.Dots) d.enabled = !hidden;
+            if (hidden) return;
             Color c;
-            if (!toUnlocked) c = Theme.TextDim.WithAlpha(0.14f);
+            if (!toUnlocked) c = Theme.TextDim.WithAlpha(to != null && to.Kind == LevelKind.Secret ? 0.07f : 0.14f);
             else if (toDone && fromDone) c = Theme.Gold.WithAlpha(0.85f);
             else c = (s.VisualOnly ? Theme.Violet : Theme.Cyan).WithAlpha(0.9f);
             foreach (var d in s.Dots) d.color = c;
@@ -428,6 +451,23 @@ namespace PuzzleGame
         {
             if (l == null || !_nodes.TryGetValue(l.Id, out var n) || n == null) return;
             _marker.anchoredPosition = n.Pos + new Vector2(0, NodeSize * 0.75f);
+            PlaceCurrentRing(n);
+        }
+
+        Image _currentRing;
+        Node _currentNode;
+
+        /// <summary>A slow pulsing ring around the level the player is standing on.</summary>
+        void PlaceCurrentRing(Node n)
+        {
+            if (_currentRing == null)
+            {
+                _currentRing = UIFactory.Image(_content, "CurrentRing", SpriteFactory.RingThin, Theme.Cyan);
+                _currentRing.rectTransform.anchorMin = _currentRing.rectTransform.anchorMax = new Vector2(0.5f, 0);
+            }
+            _currentNode = n;
+            _currentRing.rectTransform.anchoredPosition = n.Pos;
+            _currentRing.transform.SetSiblingIndex(n.Root.GetSiblingIndex());
         }
 
         void PlayUnlocks(List<string> ids)
@@ -442,7 +482,7 @@ namespace PuzzleGame
                 Tween.Delay(n.Root, delay, () =>
                 {
                     _animating.Remove(id);
-                    Game.Audio.Play(Sfx.Unlock, 0.8f);
+                    Game.Audio.Play(l.Kind == LevelKind.Secret ? Sfx.Secret : Sfx.Unlock, 0.8f);
                     Refresh();
                     UIFactory.PopIn(n.Root, 0f, 0.5f, 0.4f);
                     Burst(n.Pos, HudScreen.KindColor(l.Kind));
@@ -459,7 +499,11 @@ namespace PuzzleGame
                 Tween.Run(_marker, 0.7f, t =>
                 {
                     _marker.anchoredPosition = Vector2.Lerp(startPos, endPos, t) + new Vector2(0, Mathf.Sin(t * Mathf.PI) * 60f);
-                }, Ease.InOutSine, () => Game.Progress.SetCurrent(target), delay + 0.1f);
+                }, Ease.InOutSine, () =>
+                {
+                    Game.Progress.SetCurrent(target);
+                    if (_nodes.TryGetValue(target.Id, out var tn) && tn != null) PlaceCurrentRing(tn);
+                }, delay + 0.1f);
                 ScrollTo(target, true, delay);
             }
         }
@@ -516,6 +560,13 @@ namespace PuzzleGame
             if (_marker == null) return;
             float t = Time.unscaledTime;
             _markerBody.rectTransform.anchoredPosition = new Vector2(0, Mathf.Sin(t * 3f) * 8f);
+            if (_currentRing != null && _currentNode != null)
+            {
+                float k = Mathf.Repeat(t * 0.8f, 1f);
+                float size = NodeSize * (1.1f + 0.5f * k);
+                _currentRing.rectTransform.sizeDelta = new Vector2(size, size);
+                _currentRing.color = Theme.Cyan.WithAlpha(0.7f * (1f - k));
+            }
             foreach (var n in _nodes.Values)
             {
                 if (n == null || !Game.Progress.IsUnlocked(n.Level) || Game.Progress.IsCompleted(n.Level) || _animating.Contains(n.Level.Id)) continue;

@@ -45,5 +45,19 @@ namespace PuzzleGame
         public LevelData First => _levels.Count > 0 ? _levels[0] : null;
 
         public List<LevelData> ToList() => new List<LevelData>(_levels);
+
+        /// <summary>
+        /// Mechanics this level shows for the first time on the main path (blocks in
+        /// level 4, plates/doors in 10, echo in 12). Used to point at the new object
+        /// once, instead of showing a tutorial popup.
+        /// </summary>
+        public Mechanics NewMechanics(LevelData level)
+        {
+            if (level == null || !level.IsMainPath) return Mechanics.None;
+            var seen = Mechanics.None;
+            foreach (var l in _levels)
+                if (l.IsMainPath && l.Number < level.Number) seen |= l.Mechanics;
+            return level.Mechanics & ~seen & ~Mechanics.Pickups;
+        }
     }
 }

@@ -179,9 +179,11 @@ namespace PuzzleGame.Tests
             var level = Parse("#########\n#E......#\n#########\n#P..R..G#\n#########", "echo: 3\n");
             var e = new PuzzleEngine(level);
             var s = Play(e, "RR");
-            var preview = e.PreviewEcho(s)[0];
+            var preview = e.PreviewEcho(s);
+            Assert.IsTrue(preview.Armed, "one step from the rune");
+            Assert.AreEqual(Direction.Right, preview.TriggerDir);
             e.Apply(s, Direction.Right);
-            Assert.AreEqual(preview[preview.Count - 1], s.Echoes[0]);
+            Assert.AreEqual(preview.End(0), s.Echoes[0]);
         }
 
         // ------------------------------------------------------------ undo

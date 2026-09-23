@@ -6,78 +6,37 @@ using UnityEngine;
 namespace PuzzleGame
 {
     /// <summary>
-    /// Loads and saves <see cref="SaveData"/> as JSON in persistentDataPath.
-    /// Writes go to a temp file first and the previous save is kept as a backup,
-    /// so a crash mid-write can never destroy progress.
+    /// Persists <see cref="SaveData"/> as JSON in persistentDataPath. The policy
+    /// (main -> backup -> fresh, temp-file writes, repair of damaged data) lives in
+    /// Core's <see cref="SaveStore"/> and is unit-tested; this class only supplies
+    /// JsonUtility and the real file system.
     /// </summary>
     public sealed class SaveManager
     {
-        const string FileName = "save.json";
-        const string BackupName = "save.bak";
+        readonly SaveStore _store;
 
-        public SaveData Data { get; private set; }
+        public SaveData Data => _store.Data;
         public bool Dirty { get; private set; }
-
-        readonly string _dir;
-        string MainPath => Path.Combine(_dir, FileName);
-        string BackupPath => Path.Combine(_dir, BackupName);
-        string TempPath => Path.Combine(_dir, FileName + ".tmp");
 
         public SaveManager(string directory = null)
         {
-            _dir = directory ?? Application.persistentDataPath;
+            _store = new SaveStore(new JsonCodec(), new DiskFiles(directory ?? Application.persistentDataPath));
         }
 
         public void Load()
         {
-            Data = TryRead(MainPath) ?? TryRead(BackupPath) ?? new SaveData();
+            _store.Load();
+            if (_store.LoadedFrom != "main" && !string.IsNullOrEmpty(_store.LastError))
+                Debug.LogWarning($"[Save] Loaded from {_store.LoadedFrom}: {_store.LastError}");
             Dirty = false;
-        }
-
-        SaveData TryRead(string path)
-        {
-            try
-            {
-                if (!File.Exists(path)) return null;
-                string json = File.ReadAllText(path);
-                if (string.IsNullOrWhiteSpace(json)) return null;
-                var data = JsonUtility.FromJson<SaveData>(json);
-                if (data == null) return null;
-                if (!SaveMigrations.Migrate(data))
-                {
-                    Debug.LogWarning($"[Save] {path} was written by a newer version ({data.version}); loading what we can.");
-                    data.version = SaveData.CurrentVersion;
-                }
-                return data;
-            }
-            catch (Exception e)
-            {
-                Debug.LogWarning($"[Save] Could not read {path}: {e.Message}");
-                return null;
-            }
         }
 
         public void MarkDirty() => Dirty = true;
 
         public void Save()
         {
-            if (Data == null) return;
-            try
-            {
-                Directory.CreateDirectory(_dir);
-                Data.version = SaveData.CurrentVersion;
-                Data.lastSavedUtc = DateTime.UtcNow.ToString("o");
-                string json = JsonUtility.ToJson(Data, true);
-                File.WriteAllText(TempPath, json);
-                if (File.Exists(MainPath)) File.Copy(MainPath, BackupPath, true);
-                if (File.Exists(MainPath)) File.Delete(MainPath);
-                File.Move(TempPath, MainPath);
-                Dirty = false;
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[Save] Failed to save: {e}");
-            }
+            if (_store.Save(DateTime.UtcNow)) Dirty = false;
+            else Debug.LogError("[Save] Failed to save: " + _store.LastError);
         }
 
         public void SaveIfDirty()
@@ -85,13 +44,37 @@ namespace PuzzleGame
             if (Dirty) Save();
         }
 
-        /// <summary>Wipes all progress (dev tools / settings).</summary>
+        /// <summary>Wipes all progress (dev tools), keeping the sound setting.</summary>
         public void ResetAll()
         {
             var sound = Data?.settings?.sound ?? true;
-            Data = new SaveData();
-            Data.settings.sound = sound;
+            var fresh = new SaveData();
+            fresh.settings.sound = sound;
+            _store.Replace(fresh);
             Save();
+        }
+
+        sealed class JsonCodec : ISaveCodec
+        {
+            public string Encode(SaveData data) => JsonUtility.ToJson(data, true);
+            public SaveData Decode(string text) => JsonUtility.FromJson<SaveData>(text);
+        }
+
+        sealed class DiskFiles : ISaveFiles
+        {
+            readonly string _dir;
+            public DiskFiles(string dir) { _dir = dir; }
+            string P(string name) => Path.Combine(_dir, name);
+            public bool Exists(string name) => File.Exists(P(name));
+            public string Read(string name) => File.ReadAllText(P(name));
+            public void Write(string name, string text)
+            {
+                Directory.CreateDirectory(_dir);
+                File.WriteAllText(P(name), text);
+            }
+            public void Copy(string from, string to) => File.Copy(P(from), P(to), true);
+            public void Delete(string name) => File.Delete(P(name));
+            public void Move(string from, string to) => File.Move(P(from), P(to));
         }
     }
 }

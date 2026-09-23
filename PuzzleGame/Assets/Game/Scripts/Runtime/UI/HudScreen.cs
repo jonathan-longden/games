@@ -24,6 +24,9 @@ namespace PuzzleGame
         readonly List<Image> _echoSlots = new List<Image>();
         readonly List<Image> _echoArrows = new List<Image>();
         UIButton _undo, _reset, _pause;
+        Text _undoLabel, _resetLabel, _echoSub;
+        Image _echoRune;
+        bool _echoArmed;
         readonly List<UIButton> _pad = new List<UIButton>();
         LevelData _level;
         int _lastMoves = -1;
@@ -66,15 +69,20 @@ namespace PuzzleGame
                 bg.rectTransform.Fill();
                 _objStar[i] = UIFactory.Image(chip, "Star", SpriteFactory.Star, Theme.StarOff);
                 _objStar[i].rectTransform.Place(new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(14, 0), new Vector2(46, 46));
-                _objText[i] = UIFactory.Text(chip, "Text", "", 28, Theme.Text, TextAnchor.MiddleLeft, FontStyle.Bold);
+                _objText[i] = UIFactory.Text(chip, "Text", "", 31, Theme.Text, TextAnchor.MiddleLeft, FontStyle.Bold);
                 _objText[i].rectTransform.Fill(70, 0, 8, 0);
                 _objText[i].horizontalOverflow = HorizontalWrapMode.Overflow;
             }
 
             // echo memory strip
             _echoRoot = UIFactory.Rect("Echo", TopBlock).Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -270), new Vector2(900, 100));
-            var el = UIFactory.Text(_echoRoot, "Label", "ECHO\nMEMORY", 24, Theme.Violet, TextAnchor.MiddleRight, FontStyle.Bold);
-            el.rectTransform.Place(new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(40, 0), new Vector2(170, 90));
+            _echoRune = UIFactory.Image(_echoRoot, "Rune", SpriteFactory.Rune, Theme.Violet);
+            _echoRune.rectTransform.Place(new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(0, 0), new Vector2(64, 64));
+            var el = UIFactory.Text(_echoRoot, "Label", "ECHO", 32, Theme.Violet, TextAnchor.LowerLeft, FontStyle.Bold);
+            el.rectTransform.Place(new Vector2(0, 0.5f), new Vector2(0, 0), new Vector2(76, 0), new Vector2(210, 44));
+            _echoSub = UIFactory.Text(_echoRoot, "Sub", "", 26, Theme.TextDim, TextAnchor.UpperLeft, FontStyle.Bold);
+            _echoSub.rectTransform.Place(new Vector2(0, 0.5f), new Vector2(0, 1), new Vector2(76, 0), new Vector2(230, 44));
+            _echoSub.horizontalOverflow = HorizontalWrapMode.Overflow;
 
             // hint line (just above the board)
             _hintRect = UIFactory.Rect("Hint", RT).Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -TopHeight), new Vector2(980, 90));
@@ -94,10 +102,10 @@ namespace PuzzleGame
             PadButton(padRoot, Direction.Left, new Vector2(-190, 0));
             PadButton(padRoot, Direction.Right, new Vector2(190, 0));
 
-            _undo = SideButton(BottomBlock, "UNDO", SpriteFactory.Undo, new Vector2(0, 0), new Vector2(40, 60), new Vector2(0, 0));
+            _undo = SideButton(BottomBlock, "UNDO", SpriteFactory.Undo, new Vector2(0, 0), new Vector2(40, 60), new Vector2(0, 0), out _undoLabel);
             _undo.Down = () => { _undoHeld = true; _undoTimer = 0.35f; Game.Puzzle.Undo(); };
             _undo.Up = () => _undoHeld = false;
-            _reset = SideButton(BottomBlock, "RESET", SpriteFactory.Restart, new Vector2(1, 0), new Vector2(-40, 60), new Vector2(1, 0));
+            _reset = SideButton(BottomBlock, "RESET", SpriteFactory.Restart, new Vector2(1, 0), new Vector2(-40, 60), new Vector2(1, 0), out _resetLabel);
             _reset.Clicked = () => Game.Puzzle.ResetPuzzle();
         }
 
@@ -113,15 +121,35 @@ namespace PuzzleGame
             _pad.Add(b);
         }
 
-        UIButton SideButton(RectTransform parent, string label, Sprite icon, Vector2 anchor, Vector2 pos, Vector2 pivot)
+        UIButton SideButton(RectTransform parent, string label, Sprite icon, Vector2 anchor, Vector2 pos, Vector2 pivot, out Text text)
         {
             var b = UIFactory.Button(parent, label, "", Theme.PanelLight, null, icon, 40, Theme.Text);
             var rt = (RectTransform)b.transform;
-            rt.Place(anchor, pivot, pos, new Vector2(190, 190));
-            ((RectTransform)b.Icon.transform).Place(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 18), new Vector2(92, 92));
-            var t = UIFactory.Text(rt, "Label", label, 28, Theme.TextDim, TextAnchor.MiddleCenter, FontStyle.Bold);
-            t.rectTransform.Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 14), new Vector2(190, 40));
+            rt.Place(anchor, pivot, pos, new Vector2(200, 200));
+            ((RectTransform)b.Icon.transform).Place(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 20), new Vector2(92, 92));
+            text = UIFactory.Text(rt, "Label", label, 32, Theme.Text, TextAnchor.MiddleCenter, FontStyle.Bold);
+            text.rectTransform.Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 12), new Vector2(200, 46));
+            text.horizontalOverflow = HorizontalWrapMode.Overflow;
             return b;
+        }
+
+        /// <summary>Undo and reset always show whether they will do anything.</summary>
+        void RefreshButtons()
+        {
+            var p = Game.Puzzle;
+            int n = p.UndoCount;
+            _undoLabel.text = n > 0 ? $"UNDO ×{n}" : "UNDO";
+            SetEnabledLook(_undo, _undoLabel, n > 0);
+            SetEnabledLook(_reset, _resetLabel, p.CanReset);
+        }
+
+        static void SetEnabledLook(UIButton b, Text label, bool on)
+        {
+            b.Interactable = on;
+            var c = on ? Theme.PanelLight : Theme.PanelLight.WithAlpha(0.45f);
+            if (b.Background != null && b.Background.color != c) b.SetColor(c);
+            if (b.Icon != null) b.Icon.color = on ? Theme.Text : Theme.TextDim.WithAlpha(0.45f);
+            label.color = on ? Theme.Text : Theme.TextDim.WithAlpha(0.45f);
         }
 
         static float Angle(Direction d)
@@ -151,6 +179,7 @@ namespace PuzzleGame
             _hintRect.anchoredPosition = new Vector2(0, -(echo ? TopHeightEcho : TopHeight));
             _echoRoot.gameObject.SetActive(echo);
             if (echo) BuildEchoSlots(level.EchoMemory);
+            _echoArmed = false;
 
             _hint.text = level.Hint;
             _hintDismissed = false;
@@ -275,9 +304,23 @@ namespace PuzzleGame
                 bool has = mi >= 0;
                 _echoArrows[i].enabled = has;
                 if (has) _echoArrows[i].rectTransform.localRotation = Quaternion.Euler(0, 0, Angle(s.Memory[mi]));
-                _echoSlots[i].color = new Color(0.2f, 0.14f, 0.42f, has ? 0.95f : 0.45f);
-                _echoArrows[i].color = Theme.Violet;
+                // Armed (one step from the rune): the strip lights up, because this is
+                // exactly the sequence the next step will play.
+                _echoSlots[i].color = _echoArmed && has
+                    ? new Color(0.42f, 0.28f, 0.85f, 1f)
+                    : new Color(0.2f, 0.14f, 0.42f, has ? 0.95f : 0.45f);
+                _echoArrows[i].color = _echoArmed && has ? Color.white : Theme.Violet;
             }
+            int len = _level != null ? _level.EchoMemory : n;
+            _echoSub.text = _echoArmed ? "plays on the rune" : $"repeats last {len}";
+            _echoSub.color = _echoArmed ? Theme.Text : Theme.TextDim;
+            if (!_echoArmed) _echoRune.color = Theme.Violet;
+        }
+
+        void OnEchoArmed(bool armed)
+        {
+            _echoArmed = armed;
+            if (_level != null && _level.HasEcho && Game.Puzzle.State != null) RefreshEcho(Game.Puzzle.State);
         }
 
         /// <summary>
@@ -316,6 +359,7 @@ namespace PuzzleGame
             if (UI == null || Game == null) return;
             Game.Puzzle.StateChanged += Refresh;
             Game.Grid.EchoStep += OnEchoStep;
+            Game.Grid.EchoArmedChanged += OnEchoArmed;
         }
 
         void OnDisable()
@@ -323,6 +367,7 @@ namespace PuzzleGame
             if (UI == null || Game == null) return;
             Game.Puzzle.StateChanged -= Refresh;
             Game.Grid.EchoStep -= OnEchoStep;
+            Game.Grid.EchoArmedChanged -= OnEchoArmed;
         }
 
         void Update()
@@ -336,7 +381,9 @@ namespace PuzzleGame
                     Game.Puzzle.Undo();
                 }
             }
-            if (_reset != null) _reset.Interactable = Game.Puzzle.State != null && (Game.Puzzle.State.Moves > 0);
+            if (_undoLabel != null && Game.Puzzle.State != null) RefreshButtons();
+            if (_echoArmed && _echoRune != null)
+                _echoRune.color = Color.Lerp(Theme.Violet, Color.white, 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 6f));
         }
     }
 }

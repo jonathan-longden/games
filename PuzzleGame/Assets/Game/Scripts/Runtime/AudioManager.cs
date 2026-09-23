@@ -23,6 +23,7 @@ namespace PuzzleGame
         Coin,
         Click,
         Unlock,
+        Secret,
     }
 
     /// <summary>
@@ -90,6 +91,9 @@ namespace PuzzleGame
             _clips[Sfx.Star] = Make("star", 0.6f, t => Bell(t, 1319, 0.5f) * 0.35f + Bell(t, 1976, 0.3f) * 0.12f);
             _clips[Sfx.Coin] = Make("coin", 0.25f, t => Bell(t, 1568, 0.12f) * 0.25f + Bell(t - 0.05f, 2093, 0.18f) * 0.25f);
             _clips[Sfx.Click] = Make("click", 0.05f, t => Tone(t, 900, 0.03f) * 0.25f);
+            // Rising, slightly unresolved: "something hidden just opened".
+            _clips[Sfx.Secret] = Make("secret", 1.4f, t => Shimmer(t, 392, 1.1f) * 0.25f + Bell(t - 0.25f, 587, 0.9f) * 0.2f
+                + Bell(t - 0.5f, 831, 0.9f) * 0.2f + Bell(t - 0.75f, 1109, 1.0f) * 0.22f);
             _clips[Sfx.Unlock] = Make("unlock", 0.9f, t => Bell(t, 392, 0.8f) * 0.25f + Bell(t, 587, 0.8f) * 0.2f + Bell(t - 0.12f, 784, 0.7f) * 0.25f);
         }
 
