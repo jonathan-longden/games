@@ -79,6 +79,25 @@ namespace PuzzleGame
 
         public void FinishMotion() => Tween.Kill(MoveOwner, true);
 
+        readonly object _jiggleOwner = new object();
+
+        /// <summary>A short shove-and-return: "I was pushed but cannot move".</summary>
+        public void Jiggle(Direction d)
+        {
+            var v = Visual;
+            Vector3 dir;
+            switch (d)
+            {
+                case Direction.Up: dir = Vector3.up; break;
+                case Direction.Down: dir = Vector3.down; break;
+                case Direction.Left: dir = Vector3.left; break;
+                default: dir = Vector3.right; break;
+            }
+            Tween.Kill(_jiggleOwner, true);
+            Tween.Run(_jiggleOwner, 0.14f, t => { if (this) v.localPosition = dir * (0.07f * Mathf.Sin(t * Mathf.PI)); },
+                Ease.Linear, () => { if (this) v.localPosition = Vector3.zero; });
+        }
+
         protected void Punch(float amount = 0.15f, float duration = 0.25f)
         {
             var v = Visual;
@@ -265,7 +284,7 @@ namespace PuzzleGame
         {
             if (_glow == null) return;
             float t = Time.unscaledTime;
-            _glow.color = Theme.Violet.WithAlpha(0.35f + 0.15f * Mathf.Sin(t * 2.4f));
+            _glow.color = Theme.Violet.WithAlpha(0.22f + 0.1f * Mathf.Sin(t * 2.4f));
             _ring.transform.localRotation = Quaternion.Euler(0, 0, t * 40f);
         }
     }
@@ -316,7 +335,7 @@ namespace PuzzleGame
         public void Build(int channel)
         {
             _color = Theme.Channel(channel);
-            _glow = Layer("Glow", SpriteFactory.Glow, _color.WithAlpha(0.35f), Layers.Door - 1, 1.3f);
+            _glow = Layer("Glow", SpriteFactory.Glow, Color.clear, Layers.Door - 1, 1.3f);
             _frame = Layer("Frame", SpriteFactory.TileOutline, _color.WithAlpha(0.35f), Layers.Door, 0.96f);
             _base = Layer("Base", SpriteFactory.Tile, Theme.WallBase, Layers.Door, 0.9f);
             _bars = Layer("Bars", SpriteFactory.Bars, _color, Layers.Door + 1, 0.72f);
@@ -345,8 +364,24 @@ namespace PuzzleGame
             _bars.transform.localPosition = new Vector3(0, 0.3f * o, 0);
             _bars.color = _color.WithAlpha(1f - 0.75f * o);
             _base.color = Theme.WallBase.WithAlpha(1f - 0.85f * o);
-            _glow.color = _color.WithAlpha(0.35f * (1f - o));
+            // Closed doors do not glow: the coloured bars already say "locked by this colour".
+            _glow.color = _color.WithAlpha(0.3f * _nudge);
             _frame.color = _color.WithAlpha(0.25f + 0.35f * o);
+        }
+
+        float _nudge;
+        readonly object _nudgeOwner = new object();
+
+        /// <summary>A brief glow when one of this door's plates changes, linking plate and door.</summary>
+        public void Nudge()
+        {
+            Tween.Kill(_nudgeOwner);
+            Tween.Run(_nudgeOwner, 0.5f, t =>
+            {
+                if (!this) return;
+                _nudge = Mathf.Sin(t * Mathf.PI);
+                _glow.color = _color.WithAlpha(0.3f * _nudge);
+            }, Ease.Linear);
         }
     }
 
@@ -359,7 +394,7 @@ namespace PuzzleGame
 
         public void Build()
         {
-            _glow = Layer("Glow", SpriteFactory.Glow, Theme.Gold.WithAlpha(0.5f), Layers.Goal - 1, 1.8f);
+            _glow = Layer("Glow", SpriteFactory.Glow, Theme.Gold.WithAlpha(0.35f), Layers.Goal - 1, 1.55f);
             Layer("Plate", SpriteFactory.Circle64, new Color(0.06f, 0.05f, 0.16f, 0.95f), Layers.Goal, 0.8f);
             _ring = Layer("Ring", SpriteFactory.RingThin, Theme.Gold, Layers.Goal + 1, 0.8f);
             _ring2 = Layer("Ring2", SpriteFactory.Star, Theme.Gold.WithAlpha(0.5f), Layers.Goal + 1, 0.5f);
@@ -374,12 +409,12 @@ namespace PuzzleGame
             float t = Time.unscaledTime;
             _ring.transform.localScale = Vector3.one * (0.78f + 0.05f * Mathf.Sin(t * 3f));
             _ring2.transform.localRotation = Quaternion.Euler(0, 0, -t * 30f);
-            _glow.color = Theme.Gold.WithAlpha(0.38f + 0.12f * Mathf.Sin(t * 2f));
+            _glow.color = Theme.Gold.WithAlpha(0.28f + 0.08f * Mathf.Sin(t * 2f));
             _core.transform.localScale = Vector3.one * (0.45f + 0.06f * Mathf.Sin(t * 4.3f));
             _sparkTimer -= Time.unscaledDeltaTime;
             if (_sparkTimer <= 0f && Fx != null)
             {
-                _sparkTimer = 0.18f;
+                _sparkTimer = 0.3f;
                 Fx.Sparkle(transform.position, Theme.Gold, 0.3f);
             }
         }
@@ -399,9 +434,15 @@ namespace PuzzleGame
 
         public void Flash() => _flash = 1f;
 
+        bool _armed;
+
+        /// <summary>Armed = the player is one step away, so stepping on now will play the echo.</summary>
+        public void SetArmed(bool armed) => _armed = armed;
+
         void Update()
         {
             if (_glyph == null) return;
+            if (_armed) _flash = Mathf.Max(_flash, 0.35f + 0.25f * Mathf.Sin(Time.unscaledTime * 6f));
             float t = Time.unscaledTime;
             _flash = Mathf.MoveTowards(_flash, 0f, Time.unscaledDeltaTime * 2.5f);
             _glyph.transform.localRotation = Quaternion.Euler(0, 0, Mathf.Sin(t * 0.8f) * 8f);
@@ -426,7 +467,7 @@ namespace PuzzleGame
             bool crystal = type == PickupType.Crystal;
             var item = LevelData.ToItem(type);
             Color c = crystal ? Theme.Cyan : SpriteFactory.ItemColor(item);
-            _glow = Layer("Glow", SpriteFactory.Glow, c.WithAlpha(0.55f), Layers.Pickup - 1, crystal ? 1.1f : 1.5f, default, _float);
+            _glow = Layer("Glow", SpriteFactory.Glow, c.WithAlpha(0.4f), Layers.Pickup - 1, crystal ? 1.1f : 1.5f, default, _float);
             if (!crystal)
                 _ring = Layer("Ring", SpriteFactory.RingThin, c.WithAlpha(0.6f), Layers.Pickup, 0.8f, default, _float);
             _icon = Layer("Icon", crystal ? SpriteFactory.Crystal : SpriteFactory.ForItem(item), crystal ? Color.white : c,

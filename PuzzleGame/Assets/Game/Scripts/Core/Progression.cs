@@ -25,6 +25,8 @@ namespace PuzzleGame.Core
         public int MasteryCoins;
         public bool FirstClear;
         public bool NewBest;
+        public int BestMoves;                        // best ever, including this run
+        public bool CrystalCollected;                // this run picked up the level's crystal
         public ItemType ItemFound = ItemType.None;   // newly added to the collection
         public readonly List<string> NewlyUnlocked = new List<string>();
 
@@ -132,6 +134,8 @@ namespace PuzzleGame.Core
             rec.stars = res.NewStars;
             rec.timesCompleted++;
             if (res.NewBest) rec.bestMoves = run.Moves;
+            res.BestMoves = rec.bestMoves;
+            res.CrystalCollected = run.CrystalCollected && level.CrystalIndex >= 0;
             if (run.CrystalCollected) rec.crystalFound = true;
 
             if (run.ItemCollected && level.SpecialItem != ItemType.None && !save.HasItemFrom(level.Id))

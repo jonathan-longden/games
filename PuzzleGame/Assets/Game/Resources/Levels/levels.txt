@@ -4,6 +4,7 @@
 //   P  player   G  exit   B  block   E  echo block   R  echo rune
 //   x y z  switches (channels 0,1,2)   X Y Z  doors (channels 0,1,2)
 //   c  crystal (star 3)   k key   g gem   p puzzle piece   r relic
+// optimal: = fewest possible moves (checked against the solver by the tests)
 
 // ======================================================= THE SUNKEN STEPS
 
@@ -12,6 +13,7 @@ title: First Steps
 region: The Sunken Steps
 hint: Swipe or use the arrows. Find the glowing exit.
 difficulty: 1
+optimal: 7
 target: 9
 mastery: crystal
 map: 1 0
@@ -31,6 +33,7 @@ title: Two Roads
 region: The Sunken Steps
 hint: Every path counts. Fewer moves earn more stars.
 difficulty: 1
+optimal: 8
 target: 10
 mastery: crystal
 requires: 1
@@ -50,6 +53,7 @@ title: The Long Way Round
 region: The Sunken Steps
 hint: Look before you walk.
 difficulty: 1
+optimal: 9
 target: 11
 mastery: crystal
 requires: 2
@@ -72,6 +76,7 @@ title: Nudge
 region: Hall of Stones
 hint: Walk into a block to push it.
 difficulty: 1
+optimal: 5
 target: 7
 mastery: crystal
 requires: 3
@@ -93,6 +98,7 @@ title: Doorway
 region: Hall of Stones
 hint: Blocks can be pushed, never pulled.
 difficulty: 2
+optimal: 6
 target: 8
 mastery: crystal
 requires: 4
@@ -112,6 +118,7 @@ title: Squatter
 region: Hall of Stones
 hint: Stuck? Undo is free. Use it as often as you like.
 difficulty: 2
+optimal: 6
 target: 8
 mastery: crystal
 requires: 5
@@ -129,6 +136,7 @@ title: Two Stones
 region: Hall of Stones
 hint: You can only push one block at a time.
 difficulty: 2
+optimal: 8
 target: 10
 mastery: crystal
 requires: 6
@@ -145,6 +153,7 @@ level 8
 title: Crossroads
 region: Hall of Stones
 difficulty: 2
+optimal: 6
 target: 8
 mastery: crystal
 requires: 7
@@ -165,6 +174,7 @@ level 9
 title: Stone Garden
 region: Hall of Stones
 difficulty: 3
+optimal: 10
 target: 12
 mastery: par 10
 requires: 8
@@ -186,6 +196,7 @@ title: Pressure Plate
 region: The Echo Vaults
 hint: A block resting on a plate opens its door.
 difficulty: 2
+optimal: 12
 target: 15
 mastery: crystal
 requires: 9
@@ -206,6 +217,7 @@ region: The Echo Vaults
 hint: Doors close again when the plate is released.
 kind: Normal
 difficulty: 3
+optimal: 22
 target: 27
 mastery: crystal
 requires: 10
@@ -225,8 +237,9 @@ end
 level 12
 title: The Echo
 region: The Echo Vaults
-hint: The violet block remembers your last moves. Step on the rune and it repeats them.
+hint: Step on the rune: the violet block repeats your last 3 moves.
 difficulty: 3
+optimal: 12
 target: 15
 mastery: par 12
 echo: 3
@@ -249,6 +262,7 @@ region: The Echo Vaults
 kind: Bonus
 hint: The echo can hold a door open while you explore.
 difficulty: 3
+optimal: 14
 target: 17
 mastery: par 14
 requires: 12
@@ -270,6 +284,7 @@ title: Two Seals
 region: The Echo Vaults
 hint: Every plate of a colour must be pressed to open its doors.
 difficulty: 3
+optimal: 12
 target: 15
 mastery: crystal
 requires: 12
@@ -291,6 +306,7 @@ title: Echo and Stone
 region: The Echo Vaults
 hint: An echo can push a block, too.
 difficulty: 3
+optimal: 9
 target: 11
 mastery: par 9
 echo: 4
@@ -311,6 +327,7 @@ title: Twin Plates
 region: The Echo Vaults
 hint: Two plates, one door.
 difficulty: 3
+optimal: 16
 target: 19
 mastery: crystal
 requires: 14
@@ -331,6 +348,7 @@ region: The Echo Vaults
 kind: Secret
 hint: The key turns. A hidden stair opens.
 difficulty: 4
+optimal: 16
 target: 19
 mastery: crystal
 requires: 14
@@ -353,6 +371,7 @@ title: Switchback
 region: The Starlit Spire
 kind: Hard
 difficulty: 4
+optimal: 37
 target: 43
 mastery: par 37
 requires: 15
@@ -373,12 +392,13 @@ level 17
 title: Measured Steps
 region: The Starlit Spire
 difficulty: 4
+optimal: 19
 target: 22
 mastery: par 19
 echo: 3
 requires: 16
 map: 17 0.3
-hint: Push too far and there is no pulling back. Step on and off the rune to nudge.
+hint: An echo can push too far. Step off and back onto the rune to nudge it.
 board:
 ###########
 #.E...B.x.#
@@ -394,6 +414,7 @@ level 18
 title: Gallery
 region: The Starlit Spire
 difficulty: 4
+optimal: 49
 target: 55
 mastery: par 49
 requires: 17
@@ -415,12 +436,13 @@ title: The Loop
 region: The Starlit Spire
 kind: Hard
 difficulty: 5
+optimal: 29
 target: 34
 mastery: par 29
 echo: 3
 requires: 18
 map: 19 -0.75
-hint: A door only has to stay open while something passes through it.
+hint: A hard one. Take your time; undo is free.
 board:
 ###########
 #E.Y.B..x.#
@@ -437,6 +459,7 @@ region: The Starlit Spire
 kind: Boss
 hint: Everything you have learned.
 difficulty: 5
+optimal: 31
 target: 36
 mastery: par 31
 echo: 3

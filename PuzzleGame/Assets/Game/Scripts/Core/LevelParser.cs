@@ -112,6 +112,7 @@ namespace PuzzleGame.Core
                 switch (key)
                 {
                     case "title": l.Title = value; break;
+                    case "optimal": l.StatedOptimal = ParseInt(value); break;
                     case "hint": l.Hint = value; break;
                     case "region": l.Region = value; break;
                     case "kind": l.Kind = (LevelKind)Enum.Parse(typeof(LevelKind), value, true); break;

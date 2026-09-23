@@ -270,27 +270,42 @@ namespace PuzzleGame.Core
         }
 
         /// <summary>
-        /// Where each echo block would travel if a rune were triggered right now
-        /// (used to draw the ghost trail, so the player never has to guess).
+        /// Where each echo block would travel if a rune were triggered now
+        /// (drawn as the ghost trail, so the player never has to guess).
+        ///
+        /// If the player is one step from a rune, the preview is ARMED: it runs
+        /// that exact step on a copy of the state (push included), so the trail is
+        /// precisely what the next move onto the rune will do. Otherwise it shows
+        /// what the current memory would do with the player standing on the rune.
+        /// Either way the replayed sequence is exactly <see cref="PuzzleState.Memory"/>,
+        /// which is what the HUD memory bar shows.
         /// </summary>
-        public List<GridPos>[] PreviewEcho(PuzzleState s)
+        public EchoPreview PreviewEcho(PuzzleState s)
         {
-            var result = new List<GridPos>[s.Echoes.Length];
-            for (int i = 0; i < result.Length; i++) result[i] = new List<GridPos> { s.Echoes[i] };
-            if (s.Echoes.Length == 0 || s.Memory.Count == 0) return result;
+            var preview = new EchoPreview(s.Echoes);
+            if (s.Echoes.Length == 0 || s.Memory.Count == 0 || s.Won) return preview;
 
-            var sim = s.Clone();
-            // When the replay really happens the player is standing on the rune.
-            if (Level.Runes.Count == 1 && EchoAt(sim, Level.Runes[0]) < 0 && BlockAt(sim, Level.Runes[0]) < 0)
-                sim.Player = Level.Runes[0];
-            var outcome = new MoveOutcome();
-            ReplayEcho(sim, outcome);
-            foreach (var frame in outcome.EchoFrames)
+            foreach (var d in DirectionUtil.All)
             {
-                foreach (var m in frame.Moves)
-                    if (m.Kind == EntityKind.Echo) result[m.Index].Add(m.To);
+                var target = s.Player.Step(d);
+                if (!IsRune(target)) continue;
+                var sim = s.Clone();
+                var outcome = new MoveOutcome();
+                if (!Apply(sim, d, outcome) || !outcome.EchoTriggered) continue;
+                preview.Armed = true;
+                preview.TriggerDir = d;
+                preview.Collect(outcome);
+                return preview;
             }
-            return result;
+
+            var free = s.Clone();
+            // When the replay really happens the player is standing on the rune.
+            if (Level.Runes.Count == 1 && EchoAt(free, Level.Runes[0]) < 0 && BlockAt(free, Level.Runes[0]) < 0)
+                free.Player = Level.Runes[0];
+            var o = new MoveOutcome();
+            ReplayEcho(free, o);
+            preview.Collect(o);
+            return preview;
         }
     }
 }

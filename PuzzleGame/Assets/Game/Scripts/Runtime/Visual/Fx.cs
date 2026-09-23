@@ -74,6 +74,13 @@ namespace PuzzleGame
             }
         }
 
+        /// <summary>A barely-there puff behind a footstep.</summary>
+        public void Step(Vector3 pos, Vector2 dir)
+        {
+            var back = new Vector3(-dir.x, -dir.y) * 0.25f;
+            Spawn(pos + back * 0.5f, back, new Color(1f, 1f, 1f, 0.18f), 0.35f, 0.05f, 0.22f, SpriteFactory.Glow, 0f, 6f);
+        }
+
         public void Ring(Vector3 pos, Color c, float size = 1.6f, float life = 0.45f)
         {
             Spawn(pos, Vector3.zero, c, 0.3f, size, life, SpriteFactory.RingThin, 0f, 0f);

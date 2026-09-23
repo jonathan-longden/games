@@ -119,6 +119,9 @@ namespace PuzzleGame.Core
         public int MapRow;
         public float MapLane;
 
+        /// <summary>Stated minimum number of moves ("optimal:" in the level file). The validator requires it to equal the solver's answer.</summary>
+        public int StatedOptimal;
+
         public bool InBounds(GridPos p) => p.X >= 0 && p.Y >= 0 && p.X < Width && p.Y < Height;
 
         public Tile TileAt(GridPos p) => InBounds(p) ? Tiles[p.Y * Width + p.X] : Tile.Void;

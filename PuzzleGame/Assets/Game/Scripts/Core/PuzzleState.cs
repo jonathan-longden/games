@@ -66,6 +66,31 @@ namespace PuzzleGame.Core
         public readonly List<EntityMove> Moves = new List<EntityMove>();
     }
 
+    /// <summary>The predicted echo replay (see PuzzleEngine.PreviewEcho).</summary>
+    public sealed class EchoPreview
+    {
+        /// <summary>Per echo block: its current cell followed by every cell it moves to.</summary>
+        public readonly List<GridPos>[] Paths;
+        /// <summary>True when the player is one step from a rune and this is exactly what that step will do.</summary>
+        public bool Armed;
+        public Direction TriggerDir;
+
+        public EchoPreview(GridPos[] echoes)
+        {
+            Paths = new List<GridPos>[echoes.Length];
+            for (int i = 0; i < echoes.Length; i++) Paths[i] = new List<GridPos> { echoes[i] };
+        }
+
+        public GridPos End(int echo) => Paths[echo][Paths[echo].Count - 1];
+
+        internal void Collect(MoveOutcome o)
+        {
+            foreach (var frame in o.EchoFrames)
+                foreach (var m in frame.Moves)
+                    if (m.Kind == EntityKind.Echo) Paths[m.Index].Add(m.To);
+        }
+    }
+
     /// <summary>Everything that happened during a single player input, for animation/audio.</summary>
     public sealed class MoveOutcome
     {

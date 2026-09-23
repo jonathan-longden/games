@@ -325,6 +325,33 @@ namespace PuzzleGame
             Canvas.ForceUpdateCanvases(); // HUD rects must exist before the camera fits the board
             _game.Puzzle.Begin(level);
             _game.Grid.FitCamera();
+            if (!_game.Progress.IsCompleted(level)) IntroduceNewMechanic(level);
+        }
+
+        /// <summary>
+        /// Teach through the level, not a popup: the first time a mechanic appears,
+        /// the new objects are ringed a few times while the one-line hint shows.
+        /// </summary>
+        void IntroduceNewMechanic(LevelData level)
+        {
+            var fresh = _game.Levels.NewMechanics(level);
+            if ((fresh & Mechanics.Echo) != 0)
+            {
+                var cells = new System.Collections.Generic.List<GridPos>(level.Runes);
+                cells.AddRange(level.EchoBlocks);
+                _game.Grid.Spotlight(cells, Theme.Violet);
+            }
+            else if ((fresh & Mechanics.Switches) != 0)
+            {
+                var cells = new System.Collections.Generic.List<GridPos>();
+                foreach (var s in level.Switches) cells.Add(s.Pos);
+                foreach (var d in level.Doors) cells.Add(d.Pos);
+                _game.Grid.Spotlight(cells, Theme.Cyan);
+            }
+            else if ((fresh & Mechanics.Blocks) != 0)
+            {
+                _game.Grid.Spotlight(level.Blocks, Theme.StoneLight);
+            }
         }
 
         public void Unload()

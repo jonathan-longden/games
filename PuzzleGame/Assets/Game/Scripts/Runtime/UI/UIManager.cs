@@ -32,11 +32,16 @@ namespace PuzzleGame
         {
             Game = game;
 
-            if (FindObjectOfType<EventSystem>() == null)
+            var eventSystem = FindObjectOfType<EventSystem>();
+            if (eventSystem == null)
             {
                 var es = new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
                 DontDestroyOnLoad(es);
+                eventSystem = es.GetComponent<EventSystem>();
             }
+            // The default 10 px drag threshold is under 1 mm on modern phones, which turns
+            // slightly sloppy taps on map nodes into scrolls. Use about 2 mm instead.
+            if (Screen.dpi > 0f) eventSystem.pixelDragThreshold = Mathf.Max(10, Mathf.RoundToInt(Screen.dpi * 0.08f));
 
             var canvasGo = new GameObject("UI", typeof(RectTransform));
             canvasGo.transform.SetParent(transform, false);

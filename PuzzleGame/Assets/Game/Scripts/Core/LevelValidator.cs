@@ -134,6 +134,10 @@ namespace PuzzleGame.Core
             {
                 r.OptimalMoves = sol.Moves;
                 r.OptimalPath = sol.PathString;
+                if (l.StatedOptimal <= 0)
+                    r.Errors.Add($"no 'optimal:' stated (solver says {sol.Moves})");
+                else if (l.StatedOptimal != sol.Moves)
+                    r.Errors.Add($"stated optimal {l.StatedOptimal} does not match the solver ({sol.Moves})");
                 if (l.MoveTarget < sol.Moves)
                     r.Errors.Add($"move target {l.MoveTarget} is below the optimal solution ({sol.Moves})");
                 else if (l.MoveTarget > sol.Moves * 2 + 10)
