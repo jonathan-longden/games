@@ -1,6 +1,6 @@
 # Echo Ascent: vertical slice
 
-A portrait, grid-based puzzle game for Unity **2022.3 LTS** (C#). You push stone blocks onto pressure plates to open doors and reach the exit. From level 12 there is also the **Echo Block**, which replays your last few moves when you step on a rune. You climb a winding map of 20 levels (plus a bonus and a secret), earning stars, coins and hidden items.
+A portrait, grid-based puzzle game for Unity **2022.3 LTS** (C#). You push stone blocks onto pressure plates to open doors and reach the exit. From level 6 there is also the **Echo Block**, which replays your last few moves when you step on a rune. You climb a winding map of 20 levels (plus a bonus and a secret), earning stars, coins and hidden items.
 
 All art and sound is generated in code. The project has no paid assets and no art files.
 
@@ -66,26 +66,26 @@ The map also has two off-path levels: **B1** (bonus) and **S1** (secret). "Optim
 
 | # | Title | Teaches | Optimal / target | Star 3 |
 |---|---|---|---|---|
-| 1 | First Steps | Moving; finding the exit | 7 / 9 | Crystal down a side corridor |
-| 2 | Two Roads | Routes differ in length; move targets | 8 / 10 | Crystal on the long road |
-| 3 | The Long Way Round | Reading a maze before walking | 9 / 11 | Crystal in a far corner |
-| 4 | Nudge | Walking into a block pushes it | 5 / 7 | Crystal — pushing the block the wrong way buries it |
-| 5 | Doorway | Blocks can't be pulled; clear a doorway | 6 / 8 | Crystal behind the block |
-| 6 | Squatter | A block can sit on the exit — push it off. Undo is free | 6 / 8 | Crystal — push up, not down |
-| 7 | Two Stones | You can only push one block at a time | 8 / 10 | Crystal |
-| 8 | Crossroads | Freeing a junction held by two blocks | 6 / 8 | Crystal in the south alcove |
-| 9 | Stone Garden | Three blocks; order matters | 10 / 12 | Perfect (10) |
-| 10 | Pressure Plate | A block on a plate opens its door | 12 / 15 | Crystal |
-| 11 | Hold the Door | Doors close when the plate is released; plan the walk around. **KEY** | 22 / 27 | Crystal |
-| 12 | The Echo | **Echo Block introduced**: it repeats your last 3 moves when you step on the rune | 12 / 15 | Perfect (12) |
-| B1 | Gem Grotto *(bonus, after 12)* | Using the echo twice: hold one door open, explore, then send it to the other plate. **GEM** | 14 / 17 | Perfect (14) |
-| 13 | Two Seals | Two plate colours, two doors | 12 / 15 | Crystal |
-| 14 | Echo and Stone | The echo pushes a block; memory is short, so trigger it twice | 9 / 11 | Perfect (9) |
-| 15 | Twin Plates | One door that needs two plates | 16 / 19 | Crystal |
-| S1 | The Sealed Stair *(secret: after 14 and needs the Key)* | Two-channel block puzzle | 16 / 19 | Crystal |
-| 16 | Switchback *(Hard)* | A real two-block Sokoban with order dependencies | 37 / 43 | Perfect (37) |
-| 17 | Measured Steps | Exact echo pushes (overshooting is fatal); nudge by stepping on and off the rune. **PUZZLE PIECE** | 19 / 22 | Perfect (19) |
-| 18 | Gallery | Three blocks onto three plates | 49 / 55 | Perfect (49) |
+| 1 | The First Choice | Pushing; the direction you push the block decides which routes stay open | 6 / 8 | Crystal (14 moves, the long way) |
+| 2 | No Going Back | Blocks can't be pulled. Pushing straight down twice seals the exit for good, so undo matters | 10 / 12 | Perfect (10) |
+| 3 | The Key | Plates and doors. The door closes when the plate is released; the **KEY** is off the easy path | 22 / 27 | Crystal |
+| 4 | Two Switches | One door needs two plates, so the order you move the blocks matters | 16 / 19 | Crystal |
+| 5 | The Trap | The obvious first push is a dead end | 16 / 19 | Crystal |
+| B1 | Stone Garden *(bonus, after 4)* | Three blocks; order matters | 10 / 12 | Perfect (10) |
+| 6 | The Echo | **Echo introduced**: it repeats your last 3 moves when you step on the rune | 12 / 15 | Perfect (12) |
+| 7 | Echo and Stone | The echo pushes a block; memory is short, so trigger it twice | 9 / 11 | Perfect (9) |
+| 8 | Held Open | Using the echo twice: hold one door open, explore, then send it to the other plate. **GEM** | 14 / 17 | Perfect (14) |
+| 9 | Two Seals | Two plate colours, two doors | 12 / 15 | Crystal |
+| S1 | The Gallery *(secret: after 7 and needs the Key)* | Three blocks onto three plates | 49 / 55 | Perfect (49) |
+| 10 | Measured Steps | Exact echo pushes (overshooting is fatal); nudge by stepping on and off the rune. **PUZZLE PIECE** | 19 / 22 | Perfect (19) |
+| 11 | Echo Stair | Echo and blocks: program a path, then trigger it | 17 / 20 | Crystal |
+| 12 | Borrowed Steps | Echo plus two plates | 19 / 22 | Perfect (19) |
+| 13 | The Parapet | Four echo triggers with blocks in both rooms | 20 / 24 | Perfect (20) |
+| 14 | Switchback *(Hard)* | A real two-block Sokoban with order dependencies | 37 / 43 | Perfect (37) |
+| 15 | Windward Gate | Five echo triggers | 24 / 28 | Crystal |
+| 16 | Seven Echoes | The echo must be sent seven times | 27 / 31 | Perfect (27) |
+| 17 | The Far Plate | Echo and two plates, far apart | 28 / 32 | Crystal |
+| 18 | Two Rooms | Echo, two plates, six pushes | 29 / 34 | Crystal |
 | 19 | The Loop *(Hard)* | A door only needs to stay open while the echo passes through it | 29 / 34 | Perfect (29) |
 | 20 | Heart of the Spire *(Boss)* | Everything: echo-driven door, two-plate exit, and don't re-trigger the rune carelessly. **RELIC** | 31 / 36 | Perfect (31) |
 
@@ -94,7 +94,7 @@ Levels live in `Assets/Game/Resources/Levels/levels.txt` as readable ASCII board
 ## 5. How the vertical slice presents things
 
 - **Board hierarchy.** Walls are dark and matte, and floors are quiet. Only the player, the exit and the echo glow. Plates breathe gently until pressed. Closed doors show coloured bars without a glow, and when one of their plates changes they flash, so plate and door read as a pair. Blocks glow in the colour of the plate they rest on.
-- **Teaching.** The first time blocks (L4), plates and doors (L10) or the echo (L12) appear, those objects are ringed three times on the first attempt, alongside a one-line hint. There are no tutorial popups.
+- **Teaching.** The first time blocks (L1), plates and doors (L3) or the echo (L6) appear, those objects are ringed three times on the first attempt, alongside a one-line hint. There are no tutorial popups.
 - **Echo.**
   - The HUD strip shows the last N moves (newest on the right) and "repeats last N".
   - A faint violet trail shows where the echo would go.
@@ -119,10 +119,10 @@ Levels live in `Assets/Game/Resources/Levels/levels.txt` as readable ASCII board
 
 ## 6. Progression system
 
-- **Map.** It is a path that winds upward through four regions: Sunken Steps, Hall of Stones, Echo Vaults, Starlit Spire.
+- **Map.** It is a path that winds upward through four regions: Sunken Steps, Echo Vaults, Windward Ruins, Starlit Spire.
   - Finishing a level unlocks whatever requires it. You never have to replay to continue.
-  - Level 12 branches to the bonus level B1, which rejoins the path at 14.
-  - After 14, the secret stair S1 opens once you own the Key from level 11.
+  - Level 4 branches to the bonus level B1, which rejoins the path at 6.
+  - After 7, the secret level S1 opens once you own the Key from level 3.
 - **Stars (3 per level)** are cumulative. Each star, once earned, is kept forever, and different stars can come from different attempts.
   1. Complete the level.
   2. Finish within the move target.
@@ -192,4 +192,4 @@ docs/        DIFFICULTY.md, PLAYTEST.md
 - **Legacy uGUI text** with Unity's built-in font. It is clear but plain.
 - **No music**, only synthesised sound effects. Haptics are not implemented.
 - The echo trail is exact only when "armed" (one step from a rune). Farther away it shows what the current memory would do, which changes as you walk.
-- Difficulty is **not** a clean staircase: levels 16 and 18 are spikes. See `docs/DIFFICULTY.md`. Levels were deliberately left unchanged for this milestone.
+- Difficulty is closer to a staircase than before, but level 14 (Switchback, a pure block puzzle) is still a spike in the middle of the echo levels. See `docs/DIFFICULTY.md`.

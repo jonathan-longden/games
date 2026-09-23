@@ -1,6 +1,6 @@
-# Difficulty review (vertical slice)
+# Difficulty review
 
-No puzzle was changed. This review **measures** the 20 main levels (plus B1 and S1) with the solver and compares them with the intended curve, so the playtest knows where to look.
+This review **measures** the 20 main levels (plus B1 and S1) with the solver, so the playtest knows where to look. The lineup was reordered and extended for the "puzzle first" milestone: the first five levels each teach one idea, and the echo arrives at level 6 instead of 12.
 
 ## How each level was measured
 
@@ -11,63 +11,66 @@ No puzzle was changed. This review **measures** the 20 main levels (plus B1 and 
 
 **Search** is only a rough stand-in for difficulty. A large search means many plausible-looking wrong moves. People don't solve puzzles by BFS, so it can't replace a real playtest.
 
-| # | Kind | Teaches / uses | Optimal | Pushes | Echo triggers | Search | Star 3 |
+| # | Kind | Title | Optimal | Pushes | Echo triggers | Search | Star 3 |
 |---|---|---|---|---|---|---|---|
-| 1 | Normal | Movement, exit | 7 | 0 | – | 11 | Crystal (17) |
-| 2 | Normal | Route length, move target | 8 | 0 | – | 20 | Crystal (12) |
-| 3 | Normal | Reading a maze | 9 | 0 | – | 20 | Crystal (19) |
-| 4 | Normal | **Pushing** | 5 | 1 | – | 8 | Crystal (11) |
-| 5 | Normal | Blocks can't be pulled | 6 | 0 | – | 14 | Crystal (14) |
-| 6 | Normal | Block on the exit; undo is free | 6 | 3 | – | 18 | Crystal (6) |
-| 7 | Normal | One push at a time | 8 | 4 | – | 42 | Crystal (8) |
-| 8 | Normal | Clearing a junction | 6 | 1 | – | 13 | Crystal (14) |
-| 9 | Normal | Three blocks | 10 | 1 | – | 594 | Perfect 10 |
-| 10 | Normal | **Plates and doors** | 12 | 2 | – | 26 | Crystal (16) |
-| 11 | Normal | Doors close on release; KEY | 22 | 2 | – | 112 | Crystal (26) |
-| 12 | Normal | **Echo** | 12 | 0 | 2 | 3,889 | Perfect 12 |
-| B1 | Bonus | Echo holds a door open; GEM | 14 | 0 | 2 | 6,302 | Perfect 14 |
-| 13 | Normal | Two plate colours | 12 | 2 | – | 666 | Crystal (14) |
-| 14 | Normal | Echo pushes a block, two triggers | 9 | 0 | 2 | 610 | Perfect 9 |
-| 15 | Normal | Two plates, one door | 16 | 4 | – | 1,951 | Crystal (18) |
-| S1 | Secret | Two channels | 16 | 1 | – | 140 | Crystal (16) |
-| 16 | Hard | Two-block Sokoban | **37** | **13** | – | 6,532 | Perfect 37 |
-| 17 | Normal | Exact echo pushes, nudging; PIECE | 19 | 0 | 6 | 411 | Perfect 19 |
-| 18 | Normal | Three-block Sokoban | **49** | **18** | – | **34,193** | Perfect 49 |
-| 19 | Hard | Door only needs to be open while the echo passes | 29 | 6 | 2 | 1,281 | Perfect 29 |
-| 20 | Boss | Echo exact push + two plates + don't re-trigger; RELIC | 31 | 3 | 4 | **206,416** | Perfect 31 |
+| 1 | Normal | The First Choice | 6 | 1 | – | 14 | Crystal (14) |
+| 2 | Normal | No Going Back | 10 | 0 | – | 69 | Perfect 10 |
+| 3 | Normal | The Key | 22 | 2 | – | 112 | Crystal (26) |
+| 4 | Normal | Two Switches | 16 | 4 | – | 1,951 | Crystal (18) |
+| 5 | Normal | The Trap | 16 | 1 | – | 140 | Crystal (16) |
+| B1 | Bonus | Stone Garden | 10 | 1 | – | 594 | Perfect 10 |
+| 6 | Normal | The Echo | 12 | 0 | 2 | 3,889 | Perfect 12 |
+| 7 | Normal | Echo and Stone | 9 | 0 | 2 | 610 | Perfect 9 |
+| 8 | Normal | Held Open | 14 | 0 | 2 | 6,302 | Perfect 14 |
+| 9 | Normal | Two Seals | 12 | 2 | – | 666 | Crystal (14) |
+| S1 | Secret | The Gallery | 49 | 18 | – | 34,193 | Perfect 49 |
+| 10 | Normal | Measured Steps | 19 | 0 | 6 | 411 | Perfect 19 |
+| 11 | Normal | Echo Stair | 17 | 3 | 3 | 49,055 | Crystal (19) |
+| 12 | Normal | Borrowed Steps | 19 | 5 | 4 | 60,024 | Perfect 19 |
+| 13 | Normal | The Parapet | 20 | 4 | 4 | 74,847 | Perfect 20 |
+| 14 | Hard | Switchback | 37 | 13 | – | 6,532 | Perfect 37 |
+| 15 | Normal | Windward Gate | 24 | 3 | 5 | 31,927 | Crystal (28) |
+| 16 | Normal | Seven Echoes | 27 | 3 | 7 | 30,749 | Perfect 27 |
+| 17 | Normal | The Far Plate | 28 | 5 | 4 | 61,458 | Crystal (30) |
+| 18 | Normal | Two Rooms | 29 | 6 | 4 | 133,229 | Crystal (31) |
+| 19 | Hard | The Loop | 29 | 6 | 2 | 1,281 | Perfect 29 |
+| 20 | Boss | Heart of the Spire | 31 | 3 | 4 | 206,416 | Perfect 31 |
+
+## The first five levels, checked
+
+Each opening level was checked by exploring every reachable state and marking the ones from which the exit can no longer be reached ("dead").
+
+| # | Intended lesson | What the analysis shows |
+|---|---|---|
+| 1 The First Choice | The push direction changes which routes remain | Pushing the block up closes the short corridor to the exit; pushing it right blocks the row towards the crystal, so you go round below it. Every first push stays solvable, so level 1 cannot be lost. The crystal needs the long route (14 moves against 6). |
+| 2 No Going Back | An irreversible mistake makes undo meaningful | Pushing the block down twice is a dead state (2 moves in). The solution walks around the block, so Perfect (10) means "don't push at all". |
+| 3 The Key | An optional item that needs planning | The exit takes 22 moves, and the **Key** route takes 28. The door closes when the plate is released. |
+| 4 Two Switches | The order of the blocks matters | One door needs both plates held. |
+| 5 The Trap | The obvious solution is wrong | 3 of the 4 possible first pushes, including the obvious one, lead to dead states. Only pushing down first works. |
 
 ## Against the intended curve
 
 | Band | Intended | Actual | Verdict |
 |---|---|---|---|
-| 1–3 | Introduction | Movement only; the crystals add a detour choice | ✅ |
-| 4–6 | Basic pushing | 4 and 6 need pushes. **5 can be finished without touching the block**; the block only guards the crystal | ⚠️ 5 may not teach "no pulling" unless the player goes for the crystal |
-| 7–9 | Multiple blocks | ✅. 9 is solved with only 1 push despite having 3 blocks | ⚠️ 9 may feel like "walk around" |
-| 10–11 | Plates and doors | ✅. 11 is a long walk (22 moves) | watch for tedium |
-| 12 | Echo introduction | Echo-only room, 2 triggers | ✅ see Level 12 notes below |
-| 13–15 | Echo + switches | Only **14** uses the echo. **13 and 15 are block/plate puzzles** | ⚠️ the echo goes quiet right after it is introduced |
-| 16–18 | Complex echo puzzles | **16 and 18 are pure Sokoban with no echo**; 17 is the only echo level | ❌ biggest mismatch |
-| 19 | Hard challenge | Echo + blocks, one real insight | ✅ |
-| 20 | Boss | Combines everything; largest search space by far | ✅ (see Level 20 notes) |
+| 1–5 | One idea per level | Blocks from level 1; plates and doors from level 3 | ✅ |
+| 6–10 | Echo introduced and practised | 6, 7, 8 and 10 use the echo; 9 is a two-colour plate puzzle | ✅ |
+| 11–18 | Escalating echo puzzles | 11–13 and 15–18 are new echo levels (2–7 triggers). They were found by a generator and verified by the solver: each is unsolvable without the echo. | ⚠️ generated, not hand-tuned (see below) |
+| 14 | – | Switchback is a pure two-block Sokoban (37 moves, 13 pushes) | ⚠️ a change of pace; watch for a stall |
+| 19 | Hard challenge | Echo and blocks, one real insight | ✅ |
+| 20 | Boss | Combines everything; largest search space | ✅ |
 
-### The staircase has a cliff
+### Risks to watch in the playtest
 
-By search size and pushes, the climb goes: 15 (16 moves, 4 pushes) → **16 (37 moves, 13 pushes)** → 17 (19 moves) → **18 (49 moves, 18 pushes)** → 19 (29 moves).
+1. **Level 3 is long for a third level** (22 moves). It is the only plate-and-door puzzle that also holds the Key. If testers stall, a shorter plate introduction before it would be the fix.
+2. **Levels 11–18 were generated.** Every one requires the echo, but none was designed around a single "aha". They share one template (a sealed echo room above, the player's room below), so they may feel samey. Watch whether testers plan or just try things.
+3. **Level 14 (Switchback)** is still the first long Sokoban. If testers stall, try swapping it with 15. That changes no puzzle.
+4. **S1 (The Gallery)** is the longest puzzle (49 moves) and its Perfect star requires the exact optimum. It is optional.
 
-That is a sawtooth, not a staircase. Level 16 is the first long Sokoban and arrives with no warm-up. Level 18 is the longest level in the game, and its Perfect star requires the exact 49-move optimum.
-
-## Recommendations (for after the playtest, not applied)
-
-1. **Watch 16 closely.** If testers stall there, first try swapping 16 and 17 in the map order (this changes no puzzle). A gentler two-block puzzle before 16 would be a later content change.
-2. **Level 18's Perfect star (49 moves)** is likely unreachable for most players. Consider star 3 = crystal there instead of Perfect.
-3. If the echo "goes quiet" in 13–18 (players forget how it works), the fix is new echo puzzles in that band, which is a content change for later. The current ordering is intentional to keep block skills sharp, but the brief asked for echo there.
-4. Level 5: if testers skip the crystal, they never meet "can't pull". Moving the crystal is a content change for later. Keep it for now and observe.
-
-## Level 12 (echo introduction) UX
+## Level 6 (echo introduction) UX
 
 What the player must understand, and how the level and UI show each point:
 
-1. **What activates the echo.** The rune and the echo block are ringed three times when the level opens (first attempt only), and the hint says *"Step on the rune: the violet block repeats your last 3 moves."*
+1. **What activates the echo.** The rune and the echo block are ringed three times when the level opens (first attempt only), and the hint says *"Step on the rune: your echo repeats your last 3 moves."*
 2. **What gets recorded.** The HUD's ECHO strip shows the last 3 moves as arrows, newest on the right. It updates on every move. Bumps into walls are not recorded, and the strip shows that too.
 3. **What it will repeat.** Exactly the arrows in the strip. When the player stands next to the rune, the strip lights up and reads *"plays on the rune"*.
 4. **Where it will move.** A faint violet trail on the board shows where the echo would go. One step from the rune the trail turns bright ("armed") and is exact, because it simulates that very step, including any push.
@@ -81,7 +84,7 @@ The tests check that the memory strip and the armed trail always match the real 
 
 The size is only moderately larger (11×10). What makes it hard is that it needs every idea at once:
 
-- program the echo to push its block exactly the right distance (exactness, from 17);
+- program the echo to push its block exactly the right distance (exactness, from level 10);
 - press two plates in two rooms, where the second room is reached only through the echo-opened door (plates, doors);
 - avoid re-triggering the rune on the way out with a memory that would drag the echo off its plate (echo understanding).
 

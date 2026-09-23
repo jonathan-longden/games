@@ -68,10 +68,10 @@ namespace PuzzleGame.Tests
         {
             var levels = LevelParser.ParseAll(LevelsText).Where(l => l.IsMainPath).OrderBy(l => l.Number).ToList();
             int FirstWith(Mechanics m) => levels.First(l => (l.Mechanics & m) != 0).Number;
-            Assert.AreEqual(4, FirstWith(Mechanics.Blocks), "blocks start at level 4");
-            Assert.AreEqual(10, FirstWith(Mechanics.Switches), "switches start at level 10");
-            Assert.AreEqual(12, FirstWith(Mechanics.Echo), "echo blocks start at level 12");
-            Assert.IsTrue(levels.Take(3).All(l => l.Blocks.Count == 0), "levels 1-3 are movement only");
+            Assert.AreEqual(1, FirstWith(Mechanics.Blocks), "the first level is already a push puzzle");
+            Assert.AreEqual(3, FirstWith(Mechanics.Switches), "switches start at level 3");
+            Assert.AreEqual(6, FirstWith(Mechanics.Echo), "echo blocks start at level 6");
+            Assert.IsTrue(levels.Skip(5).Take(5).Count(l => (l.Mechanics & Mechanics.Echo) != 0) >= 3, "the echo stays in use right after it is introduced");
         }
 
         // ------------------------------------------------------------ rules

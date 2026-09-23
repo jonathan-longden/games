@@ -22,19 +22,18 @@ This script is for one tester who has **never seen Echo Ascent**, on a **real ph
 |---|---|---|
 | 0:00 | Hand over the phone on the main menu. | Do they find PLAY without prompting? |
 | 0:30 | Map appears. | Do they understand it's a path? Do they tap Level 1 or the PLAY button? |
-| 1:00 | Levels 1–3 | First swipe: did it register? Do they try the D-pad? Do they go for the crystal? Do they notice the move counter and stars? |
-| 3:30 | Levels 4–6 | Do they push the block without being told? In 6, do they get stuck with the block on the exit, and do they find **UNDO** on their own? |
-| 6:00 | Levels 7–9 | Any accidental double moves? Any "I didn't mean to do that"? |
-| 8:00 | Levels 10–11 | Do they link the plate to the door (colour, and the door glowing when the plate changes)? In 11, is the long walk frustrating? Do they notice the **KEY**? |
-| 10:00 | **Level 12 (Echo)** | The most important 3 minutes. See the Level 12 checklist below. |
-| 13:00 | Keep playing (13+, or B1 if they spot it) | Do they notice the bonus branch and wonder how to reach it? |
+| 1:00 | Levels 1–2 | First swipe: did it register? In 1, do they notice that the push direction changes the routes? In 2, do they push the block down twice, get stuck, and find **UNDO** on their own? |
+| 3:30 | Levels 3–5 | Do they link the plate to the door (colour, and the door opening when the plate changes)? In 3, do they go for the **KEY**? In 5, do they fall for the obvious push? |
+| 7:00 | **Level 6 (Echo)** | The most important 3 minutes. See the Level 6 checklist below. |
+| 10:00 | Levels 7–9 | Do they use the echo on purpose now? Any accidental double moves? |
+| 13:00 | Keep playing (10+, or B1 if they spot it) | Do they notice the bonus branch and wonder how to reach it? |
 | 14:00 | Stop. Debrief (below). | |
 
-If the tester is much faster, let them continue up the path. If much slower, stop at 15:00 wherever they are, and still do the Level 12 debrief questions if they reached it.
+If the tester is much faster, let them continue up the path. If much slower, stop at 15:00 wherever they are, and still do the Level 6 debrief questions if they reached it.
 
-## Level 12 checklist (tick as observed, do not ask)
+## Level 6 checklist (tick as observed, do not ask)
 
-- [ ] Noticed the rune and the violet block when they were ringed at the start
+- [ ] Noticed the rune and the violet echo when they were ringed at the start
 - [ ] Read the hint line
 - [ ] Looked at the ECHO memory strip while moving
 - [ ] Stepped on the rune **on purpose** (not by accident)
@@ -73,17 +72,17 @@ The Dev Panel shows moves and the undo count live if the session is run in the e
 - Did they replay a level for a missing star without being asked?
 - Reaction to the level-complete screen: too long, too short, satisfying? Did they tap to skip?
 - Did they notice the coins flying into the wallet? Did they care about coins at all?
-- Reaction to finding a bonus item (Key in 11).
-- Did they notice the **BONUS** node after 12, and did they ask how to get there?
+- Reaction to finding a bonus item (Key in 3).
+- Did they notice the **BONUS** node after 4, and did they ask how to get there?
 - Did they look up the map to see what's next?
 
 **Difficulty**
 - Where they were stuck longest, and whether it felt "I don't get the rules" or "I don't see the solution". These need different fixes.
-- Any level they called boring or tedious (watch 11).
+- Any level they called boring or tedious (watch 3).
 
 ## Debrief questions (2 minutes, after play)
 
-1. "What was the violet block doing?" (Record the exact words.)
+1. "What was the violet echo doing?" (Record the exact words.)
 2. "What do the stars mean? How would you get all three?"
 3. "Was there anything you wanted to do but couldn't?"
 4. "Was there a moment you felt clever?" (Which level?)
@@ -93,4 +92,4 @@ The Dev Panel shows moves and the undo count live if the session is run in the e
 
 - Save the screen recording with the sheet.
 - File each problem under one of these, so fixes go to the right place: **controls**, **readability**, **rules unclear**, **puzzle too hard or easy**, **reward and motivation**.
-- Compare where they got stuck with `docs/DIFFICULTY.md`: predicted spikes are levels 16 and 18.
+- Compare where they got stuck with `docs/DIFFICULTY.md`: predicted risks are level 3 (long for its place) and level 14.

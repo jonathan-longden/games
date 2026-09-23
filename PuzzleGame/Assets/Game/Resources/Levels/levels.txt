@@ -9,219 +9,54 @@
 // ======================================================= THE SUNKEN STEPS
 
 level 1
-title: First Steps
+title: The First Choice
 region: The Sunken Steps
-hint: Swipe or use the arrows. Find the glowing exit.
+hint: Walk into a block to push it. Which way should it go?
 difficulty: 1
-optimal: 7
-target: 9
+optimal: 6
+target: 8
 mastery: crystal
 map: 1 0
 board:
-#######
-#c..#G#
-###.#.#
-  #.#.#
-  #...#
-  #.###
-  #P#
-  ###
+#########
+####G..c#
+####.##.#
+####.##.#
+#P..B...#
+##.....##
+#########
 end
 
 level 2
-title: Two Roads
+title: No Going Back
 region: The Sunken Steps
-hint: Every path counts. Fewer moves earn more stars.
+hint: Blocks can be pushed, never pulled. Undo is free.
 difficulty: 1
-optimal: 8
-target: 10
-mastery: crystal
+optimal: 10
+target: 12
+mastery: par 10
 requires: 1
-map: 2 0.45
+map: 2 0.5
 board:
 #########
-#...c...#
-#.#####.#
-#.#...#.#
-#P#.#.#G#
+#...P...#
+#.##B##.#
 #.......#
+####.####
+####G####
 #########
 end
 
 level 3
-title: The Long Way Round
+title: The Key
 region: The Sunken Steps
-hint: Look before you walk.
-difficulty: 1
-optimal: 9
-target: 11
-mastery: crystal
-requires: 2
-map: 3 0.8
-board:
-#########
-#P....#c#
-#.###...#
-#.#...#.#
-#...#.#.#
-###.#...#
-#G..#.###
-#########
-end
-
-// ======================================================= HALL OF STONES
-
-level 4
-title: Nudge
-region: Hall of Stones
-hint: Walk into a block to push it.
-difficulty: 1
-optimal: 5
-target: 7
-mastery: crystal
-requires: 3
-map: 4 0.35
-board:
-  ###
-  #G#
-  #.#
-###.###
-#P.B..#
-###.###
-  #.#
-  #c#
-  ###
-end
-
-level 5
-title: Doorway
-region: Hall of Stones
-hint: Blocks can be pushed, never pulled.
+hint: A plate opens its door only while something rests on it.
 difficulty: 2
-optimal: 6
-target: 8
-mastery: crystal
-requires: 4
-map: 5 -0.25
-board:
-#######
-#..G..#
-#.###.#
-#.#c#.#
-#.#.#.#
-#P.B..#
-#######
-end
-
-level 6
-title: Squatter
-region: Hall of Stones
-hint: Stuck? Undo is free. Use it as often as you like.
-difficulty: 2
-optimal: 6
-target: 8
-mastery: crystal
-requires: 5
-map: 6 -0.75
-board:
-#######
-#..#..#
-#P.B.G#
-#..#.c#
-#######
-end
-
-level 7
-title: Two Stones
-region: Hall of Stones
-hint: You can only push one block at a time.
-difficulty: 2
-optimal: 8
-target: 10
-mastery: crystal
-requires: 6
-map: 7 -0.45
-board:
-########
-#P.#..c#
-#.BB..G#
-#..#...#
-########
-end
-
-level 8
-title: Crossroads
-region: Hall of Stones
-difficulty: 2
-optimal: 6
-target: 8
-mastery: crystal
-requires: 7
-map: 8 0.1
-board:
-  #####
-  #.G.#
-  ##.##
-###.B.###
-#P..B...#
-###...###
-  ##.##
-  #.c.#
-  #####
-end
-
-level 9
-title: Stone Garden
-region: Hall of Stones
-difficulty: 3
-optimal: 10
-target: 12
-mastery: par 10
-requires: 8
-map: 9 0.6
-board:
-########
-#P.....#
-#.B.B..#
-#..B.###
-###..#G#
-  #....#
-  ######
-end
-
-// ======================================================= THE ECHO VAULTS
-
-level 10
-title: Pressure Plate
-region: The Echo Vaults
-hint: A block resting on a plate opens its door.
-difficulty: 2
-optimal: 12
-target: 15
-mastery: crystal
-requires: 9
-map: 10 0.85
-board:
-#######
-#P.B.x#
-#.###.#
-#..X.G#
-#.#####
-#c#
-###
-end
-
-level 11
-title: Hold the Door
-region: The Echo Vaults
-hint: Doors close again when the plate is released.
-kind: Normal
-difficulty: 3
 optimal: 22
 target: 27
 mastery: crystal
-requires: 10
-map: 11 0.35
+requires: 2
+map: 3 -0.2
 board:
 #########
 #P......#
@@ -234,17 +69,81 @@ board:
     ###
 end
 
-level 12
+level 4
+title: Two Switches
+region: The Sunken Steps
+hint: Two plates, one door. Which block goes first?
+difficulty: 2
+optimal: 16
+target: 19
+mastery: crystal
+requires: 3
+map: 4 -0.7
+board:
+#########
+#......c#
+#.B.x.B.#
+#P..#..x#
+###.#.###
+  #.X.#
+  ##G##
+end
+
+level 5
+title: The Trap
+region: The Sunken Steps
+hint: The easy push is not always the right one.
+difficulty: 3
+optimal: 16
+target: 19
+mastery: crystal
+requires: 4
+map: 5 -0.3
+board:
+#########
+#c..#...#
+#.B.#.B.#
+#.x.X.y.#
+##.###.##
+#P..Y..G#
+#########
+end
+
+level B1
+title: Stone Garden
+region: The Sunken Steps
+kind: Bonus
+hint: A quiet garden, for the patient.
+difficulty: 3
+optimal: 10
+target: 12
+mastery: par 10
+requires: 4
+links: 6
+map: 5 0.85
+board:
+########
+#P.....#
+#.B.B..#
+#..B.###
+###..#G#
+  #....#
+  ######
+end
+
+// ======================================================= THE ECHO VAULTS
+
+level 6
 title: The Echo
 region: The Echo Vaults
-hint: Step on the rune: the violet block repeats your last 3 moves.
+hint: Step on the rune: your echo repeats your last 3 moves.
 difficulty: 3
 optimal: 12
 target: 15
 mastery: par 12
 echo: 3
-requires: 11
-map: 12 -0.2
+requires: 5
+map: 6 0.4
 board:
 ###########
 #...#.....#
@@ -256,19 +155,38 @@ board:
       ###
 end
 
-level B1
-title: Gem Grotto
+level 7
+title: Echo and Stone
 region: The Echo Vaults
-kind: Bonus
+hint: An echo can push a block, too.
+difficulty: 3
+optimal: 9
+target: 11
+mastery: par 9
+echo: 4
+requires: 6
+map: 7 0.75
+board:
+#########
+#.E..B.x#
+#.....###
+#########
+#..R.X.G#
+#P...####
+#########
+end
+
+level 8
+title: Held Open
+region: The Echo Vaults
 hint: The echo can hold a door open while you explore.
 difficulty: 3
 optimal: 14
 target: 17
 mastery: par 14
-requires: 12
-links: 14
-map: 13 0.75
 echo: 4
+requires: 7
+map: 8 0.2
 board:
 ###########
 #y...E...x#
@@ -279,7 +197,7 @@ board:
 ###########
 end
 
-level 13
+level 9
 title: Two Seals
 region: The Echo Vaults
 hint: Every plate of a colour must be pressed to open its doors.
@@ -287,8 +205,8 @@ difficulty: 3
 optimal: 12
 target: 15
 mastery: crystal
-requires: 12
-map: 13 -0.7
+requires: 8
+map: 9 -0.4
 board:
  #######
  #.x..c#
@@ -301,124 +219,18 @@ board:
    ###
 end
 
-level 14
-title: Echo and Stone
-region: The Echo Vaults
-hint: An echo can push a block, too.
-difficulty: 3
-optimal: 9
-target: 11
-mastery: par 9
-echo: 4
-requires: 13
-map: 14 -0.2
-board:
-#########
-#.E..B.x#
-#.....###
-#########
-#..R.X.G#
-#P...####
-#########
-end
-
-level 15
-title: Twin Plates
-region: The Echo Vaults
-hint: Two plates, one door.
-difficulty: 3
-optimal: 16
-target: 19
-mastery: crystal
-requires: 14
-map: 15 0.4
-board:
-#########
-#......c#
-#.B.x.B.#
-#P..#..x#
-###.#.###
-  #.X.#
-  ##G##
-end
-
 level S1
-title: The Sealed Stair
+title: The Gallery
 region: The Echo Vaults
 kind: Secret
 hint: The key turns. A hidden stair opens.
 difficulty: 4
-optimal: 16
-target: 19
-mastery: crystal
-requires: 14
-requires-item: Key
-map: 15 -0.85
-board:
-#########
-#c..#...#
-#.B.#.B.#
-#.x.X.y.#
-##.###.##
-#P..Y..G#
-#########
-end
-
-// ======================================================= THE STARLIT SPIRE
-
-level 16
-title: Switchback
-region: The Starlit Spire
-kind: Hard
-difficulty: 4
-optimal: 37
-target: 43
-mastery: par 37
-requires: 15
-map: 16 0.8
-hint: Plan the order before you push.
-board:
-#########
-#P..#...#
-#.B...B.#
-#..##.#.#
-#..x..x.#
- #..###X#
- #####.G#
-     ####
-end
-
-level 17
-title: Measured Steps
-region: The Starlit Spire
-difficulty: 4
-optimal: 19
-target: 22
-mastery: par 19
-echo: 3
-requires: 16
-map: 17 0.3
-hint: An echo can push too far. Step off and back onto the rune to nudge it.
-board:
-###########
-#.E...B.x.#
-###########
-#P....#
-#####.#
- #GXR.#
- ###.p#
-   ####
-end
-
-level 18
-title: Gallery
-region: The Starlit Spire
-difficulty: 4
 optimal: 49
 target: 55
 mastery: par 49
-requires: 17
-map: 18 -0.3
+requires: 7
+requires-item: Key
+map: 7 -0.8
 board:
 #########
 #P..#...#
@@ -431,18 +243,230 @@ board:
    ###
 end
 
+level 10
+title: Measured Steps
+region: The Echo Vaults
+hint: An echo can push too far. Step off and back onto the rune to nudge it.
+difficulty: 3
+optimal: 19
+target: 22
+mastery: par 19
+echo: 3
+requires: 9
+map: 10 0
+board:
+###########
+#.E...B.x.#
+###########
+#P....#
+#####.#
+ #GXR.#
+ ###.p#
+   ####
+end
+
+// ======================================================= THE WINDWARD RUINS
+
+level 11
+title: Echo Stair
+region: The Windward Ruins
+hint: Teach the echo a path, then step on the rune.
+difficulty: 3
+optimal: 17
+target: 20
+mastery: crystal
+echo: 3
+requires: 10
+map: 11 0.5
+board:
+#########
+#..x..E.#
+#...#...#
+#########
+##...Rx.#
+##..B...#
+##.c..P.#
+#####X###
+    #G#
+    ###
+end
+
+level 12
+title: Borrowed Steps
+region: The Windward Ruins
+difficulty: 3
+optimal: 19
+target: 22
+mastery: par 19
+echo: 3
+requires: 11
+map: 12 0.85
+board:
+#########
+##x..B.E#
+#########
+#.#.....#
+##.....##
+#.B..R.x#
+#...P...#
+#####X###
+    #G#
+    ###
+end
+
+level 13
+title: The Parapet
+region: The Windward Ruins
+difficulty: 4
+optimal: 20
+target: 24
+mastery: par 20
+echo: 3
+requires: 12
+map: 13 0.3
+board:
+#########
+#BE....##
+#......x#
+#########
+#......##
+#...##..#
+#..B.P.x#
+#..R.#..#
+######X##
+     #G#
+     ###
+end
+
+level 14
+title: Switchback
+region: The Windward Ruins
+kind: Hard
+hint: Plan the order before you push.
+difficulty: 4
+optimal: 37
+target: 43
+mastery: par 37
+requires: 13
+map: 14 -0.3
+board:
+#########
+#P..#...#
+#.B...B.#
+#..##.#.#
+#..x..x.#
+ #..###X#
+ #####.G#
+     ####
+end
+
+level 15
+title: Windward Gate
+region: The Windward Ruins
+difficulty: 4
+optimal: 24
+target: 28
+mastery: crystal
+echo: 3
+requires: 14
+map: 15 -0.75
+board:
+#########
+#E...x..#
+#########
+#...#c..#
+#.....P.#
+##.#.B..#
+#.Rx..#.#
+####X####
+   #G#
+   ###
+end
+
+// ======================================================= THE STARLIT SPIRE
+
+level 16
+title: Seven Echoes
+region: The Starlit Spire
+hint: Some doors need the echo more than once.
+difficulty: 4
+optimal: 27
+target: 31
+mastery: par 27
+echo: 3
+requires: 15
+map: 16 -0.2
+board:
+#########
+#x....E.#
+##......#
+#########
+#PB..x.R#
+#.......#
+##.....##
+####X####
+   #G#
+   ###
+end
+
+level 17
+title: The Far Plate
+region: The Starlit Spire
+difficulty: 4
+optimal: 28
+target: 32
+mastery: crystal
+echo: 3
+requires: 16
+map: 17 0.45
+board:
+#########
+#.x..E.B#
+#########
+#.....R.#
+##...P..#
+#...B#.x#
+#.c...#.#
+#####X###
+    #G#
+    ###
+end
+
+level 18
+title: Two Rooms
+region: The Starlit Spire
+difficulty: 5
+optimal: 29
+target: 34
+mastery: crystal
+echo: 4
+requires: 17
+map: 18 0.85
+board:
+#########
+##.xE...#
+#########
+#x.....##
+#..#..#.#
+#.#c.B..#
+#P....R.#
+####X####
+   #G#
+   ###
+end
+
 level 19
 title: The Loop
 region: The Starlit Spire
 kind: Hard
+hint: A hard one. Take your time; undo is free.
 difficulty: 5
 optimal: 29
 target: 34
 mastery: par 29
 echo: 3
 requires: 18
-map: 19 -0.75
-hint: A hard one. Take your time; undo is free.
+map: 19 0.2
 board:
 ###########
 #E.Y.B..x.#

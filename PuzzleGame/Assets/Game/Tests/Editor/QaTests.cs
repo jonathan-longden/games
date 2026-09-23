@@ -305,8 +305,8 @@ namespace PuzzleGame.Tests
             var l = Levels().First(x => x.Number == 5);
             var s = new PuzzleSession(l);
             var o = new MoveOutcome();
-            s.Move(Direction.Right, o, out _);
-            s.Move(Direction.Right, o, out _);
+            foreach (var d in PuzzleSolver.Solve(l).Path.Take(2))
+                Assert.IsTrue(s.Move(d, o, out _));
             string beforeReset = Snapshot(s.State);
             Assert.IsTrue(s.Reset());
             Assert.AreEqual(0, s.State.Moves);
